@@ -20,7 +20,7 @@ public class PlayerAimWeapon : MonoBehaviour
     void Update()
     {
         Aiming();
-        Shooting();
+        //Shooting();
     }
 
     private void Aiming()
