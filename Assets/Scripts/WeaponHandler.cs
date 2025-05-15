@@ -13,6 +13,7 @@ public class WeaponHandler : MonoBehaviour
     //public Animator weaponAnimator;
     public GameObject weaponPickupPrefab;
     public Transform weaponDropPoint;
+    public WeaponUI weaponUI;
 
     private Weapon currentWeapon;
 
@@ -56,6 +57,7 @@ public class WeaponHandler : MonoBehaviour
         if (currentWeapon != null)
             Destroy(currentWeapon.gameObject);
 
+        currentWeaponIndex = index;
         WeaponData weaponData = unlockedWeapons[index];
         currentWeapon = Instantiate(weaponData.weaponPrefab, weaponHolder).GetComponent<Weapon>();
         currentWeapon.SetData(weaponData); // pass data in
@@ -63,6 +65,9 @@ public class WeaponHandler : MonoBehaviour
         // Apply animations
         //if (weaponData.weaponAnimOverride != null)
         //    weaponAnimator.runtimeAnimatorController = weaponData.weaponAnimOverride;
+
+        if (weaponUI != null)
+            weaponUI.SetWeaponSprite(weaponData.weaponSprite);
     }
 
     public void UnlockWeapon(WeaponData newWeapon)
@@ -76,7 +81,7 @@ public class WeaponHandler : MonoBehaviour
         {
             unlockedWeapons.Add(newWeapon);
             EquipWeapon(unlockedWeapons.Count - 1);
-            currentWeaponIndex = (currentWeaponIndex + 1) % unlockedWeapons.Count;
+            //currentWeaponIndex = (currentWeaponIndex + 1) % unlockedWeapons.Count;
             return;
         }
 

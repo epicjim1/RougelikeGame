@@ -3,8 +3,11 @@ using UnityEngine;
 public class Projectile : MonoBehaviour
 {
     public float speed = 10f;
+    public GameObject hitEffect;
+
     private Vector3 direction;
     private int damage;
+    private Rigidbody2D rb;
 
     public void SetDirection(Vector3 dir)
     {
@@ -16,14 +19,29 @@ public class Projectile : MonoBehaviour
         damage = dmg;
     }
 
-    private void Update()
+    private void Awake()
     {
-        transform.position += direction * speed * Time.deltaTime;
+        rb = GetComponent<Rigidbody2D>();
+    }
+
+    private void Start()
+    {
+        //rb.linearVelocity = direction * speed;
+        rb.AddForce(direction * speed, ForceMode2D.Impulse);
+        //BulletEnd(5f);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        //Debug.Log(collision);
-        Destroy(gameObject);
+        if (collision.tag == "Walls")
+        {
+            BulletEnd();
+        }
+    }
+
+    private void BulletEnd(float time = 0f)
+    {
+        Instantiate(hitEffect, transform.position, Quaternion.identity);
+        Destroy(gameObject, time);
     }
 }

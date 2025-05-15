@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 745334045780156682}
   - component: {fileID: 4390265374623896995}
   - component: {fileID: 5291565078025904433}
-  - component: {fileID: 6627906676675641936}
+  - component: {fileID: 4859637483251648998}
   m_Layer: 0
   m_Name: pickupPrefab
   m_TagString: Untagged
@@ -78,15 +78,15 @@ SpriteRenderer:
   m_SortingLayerID: 1744539941
   m_SortingLayer: 1
   m_SortingOrder: 0
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 84f404960ed9a7d40b86d383c9403db2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 1, y: 0.5}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!114 &5291565078025904433
@@ -102,8 +102,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponToUnlock: {fileID: 0}
---- !u!61 &6627906676675641936
-BoxCollider2D:
+  promptPrefab: {fileID: 3532168369681367397, guid: 28d8fc8493c82d645b04c732cb0d226f, type: 3}
+  bobSpeed: 2
+  bobHeight: 0.2
+--- !u!58 &4859637483251648998
+CircleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -137,14 +140,4 @@ BoxCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
-    newSize: {x: 1, y: 1}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
-  m_EdgeRadius: 0
+  m_Radius: 0.7

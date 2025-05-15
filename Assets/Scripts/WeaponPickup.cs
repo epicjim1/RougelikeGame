@@ -7,6 +7,9 @@ public class WeaponPickup : MonoBehaviour
     private bool playerInRange = false;
     private GameObject player;
 
+    public GameObject promptPrefab; // assign in Inspector
+    private GameObject promptInstance;
+
     private Vector3 startPos;
     public float bobSpeed = 2f;
     public float bobHeight = 0.2f;
@@ -38,6 +41,12 @@ public class WeaponPickup : MonoBehaviour
         {
             playerInRange = true;
             player = other.gameObject;
+
+            if (promptPrefab != null && promptInstance == null)
+            {
+                promptInstance = Instantiate(promptPrefab, transform.position + Vector3.up * 1.5f, Quaternion.identity);
+                promptInstance.transform.SetParent(transform); // optional: follow bobbing
+            }
         }
     }
 
@@ -47,6 +56,9 @@ public class WeaponPickup : MonoBehaviour
         {
             playerInRange = false;
             player = null;
+
+            if (promptInstance != null)
+                Destroy(promptInstance);
         }
     }
 }

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isRanged: 1
   weaponName: bazooka
-  weaponSprite: {fileID: 21300000, guid: ba40e5491a3602f448aae573b56851c6, type: 3}
+  weaponSprite: {fileID: 970723869, guid: ba40e5491a3602f448aae573b56851c6, type: 3}
   weaponPrefab: {fileID: 7128726553753448072, guid: 7aab16d46feac5e489431b5c2a1ed894, type: 3}
   fireRate: 0.5
   damage: 50

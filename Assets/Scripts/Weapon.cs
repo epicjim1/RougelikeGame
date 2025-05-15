@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.UIElements;
+using static UnityEngine.Rendering.DebugUI.Table;
 
 public class Weapon : MonoBehaviour
 {
@@ -7,6 +9,18 @@ public class Weapon : MonoBehaviour
 
     [Header("Projectile Settings")]
     public Transform firePoint; // assign this in prefab, typically at the gun barrel
+    public ParticleSystem muzzleFlash;
+    private LineRenderer aimLine;
+
+    private void Start()
+    {
+        aimLine = GetComponent<LineRenderer>();
+    }
+
+    private void Update()
+    {
+        Laser();
+    }
 
     public void SetData(WeaponData data)
     {
@@ -22,14 +36,19 @@ public class Weapon : MonoBehaviour
 
         lastShotTime = Time.time;
 
-        if (weaponData.projectilePrefab != null && firePoint != null)
+        if (weaponData.isRanged)
         {
             this.gameObject.GetComponent<Animator>().SetTrigger("Shoot");
+            TempCamShake.Instance.Shake(0.1f, 0.1f);
+            muzzleFlash.Emit(30);
+
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            Quaternion rot = Quaternion.Euler(0, 0, angle);
 
             GameObject projectile = Instantiate(
                 weaponData.projectilePrefab,
                 firePoint.position,
-                Quaternion.LookRotation(Vector3.forward, direction) // 2D: can also use Quaternion.identity and rotate manually
+                rot
             );
 
             // Apply direction and damage to the projectile
@@ -42,7 +61,18 @@ public class Weapon : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("Weapon prefab or fire point not set up.");
+            Debug.Log("IsSword");
         }
+    }
+
+    private void Laser()
+    {
+        Vector3 mouseScreenPos = Input.mousePosition;
+        mouseScreenPos.z = Mathf.Abs(Camera.main.transform.position.z);
+
+        Vector3 mousePos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
+
+        aimLine.SetPosition(0, firePoint.position);
+        aimLine.SetPosition(1, mousePos);
     }
 }
