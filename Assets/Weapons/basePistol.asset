@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: basePistol
   m_EditorClassIdentifier: 
   isRanged: 1
-  weaponName: basePistol
+  weaponName: Basic Pistol
   weaponSprite: {fileID: 21300000, guid: 979fbd3228a790541b52ca55be07307f, type: 3}
   weaponPrefab: {fileID: 4128334779342901675, guid: acfdedab0944ef04cbc950c0bb3f20c3, type: 3}
   fireRate: 4

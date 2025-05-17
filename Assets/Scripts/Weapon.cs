@@ -19,7 +19,10 @@ public class Weapon : MonoBehaviour
 
     private void Update()
     {
-        Laser();
+        if (weaponData.isRanged)
+        {
+            Laser();
+        }
     }
 
     public void SetData(WeaponData data)
@@ -61,7 +64,9 @@ public class Weapon : MonoBehaviour
         }
         else
         {
-            Debug.Log("IsSword");
+            //Debug.Log("IsSword");
+
+            this.gameObject.GetComponent<Animator>().SetTrigger("Shoot");
         }
     }
 
