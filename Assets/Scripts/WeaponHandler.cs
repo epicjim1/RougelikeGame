@@ -19,11 +19,12 @@ public class WeaponHandler : MonoBehaviour
 
     private void Start()
     {
-        /*if (allWeapons.Count > 0)
+        //Move to game manger for only lvl 1
+        if (allWeapons.Count > 0)
         {
             UnlockWeapon(allWeapons[0]);
             EquipWeapon(0);
-        }*/
+        }
     }
 
     private void Update()
