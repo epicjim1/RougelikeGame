@@ -19,11 +19,35 @@ public class WeaponHandler : MonoBehaviour
 
     private void Start()
     {
-        //Move to game manger for only lvl 1
-        if (allWeapons.Count > 0)
+        // Get starting weapon from GameManager
+        if (GameManager.Instance != null && !string.IsNullOrEmpty(GameManager.Instance.startingWeapon))
         {
-            UnlockWeapon(allWeapons[0]);
-            EquipWeapon(0);
+            WeaponData startingWeapon = FindWeaponByName(GameManager.Instance.startingWeapon);
+            if (startingWeapon != null)
+            {
+                UnlockWeapon(startingWeapon);
+                EquipWeapon(0);
+            }
+            else
+            {
+                Debug.LogWarning($"Starting weapon '{GameManager.Instance.startingWeapon}' not found in allWeapons list!");
+                // Fallback to first weapon if starting weapon not found
+                if (allWeapons.Count > 0)
+                {
+                    UnlockWeapon(allWeapons[0]);
+                    EquipWeapon(0);
+                }
+            }
+        }
+        else
+        {
+            Debug.Log("nigger");
+            // Fallback: Use first weapon if GameManager is not available or no starting weapon set
+            if (allWeapons.Count > 0)
+            {
+                UnlockWeapon(allWeapons[0]);
+                EquipWeapon(0);
+            }
         }
     }
 
@@ -31,6 +55,18 @@ public class WeaponHandler : MonoBehaviour
     {
         HandleShooting();
         HandleWeaponSwap();
+    }
+
+    private WeaponData FindWeaponByName(string weaponName)
+    {
+        foreach (WeaponData weapon in allWeapons)
+        {
+            if (weapon != null && weapon.name.Equals(weaponName, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return weapon;
+            }
+        }
+        return null;
     }
 
     void HandleShooting()

@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 621576632ba99494e841be93df8f0a40, type: 3}
+  m_Name: redCastle
+  m_EditorClassIdentifier: 
+  levelName: redCastle
+  levelDescription: poonany
+  playerSpawnTemplate:
+    roomPrefab: {fileID: 4460516088700042975, guid: 40c7ad5cef314b74ab08f9e6fd12f99b, type: 3}
+    size: {x: 8, y: 7}
+    maxNumberGenerated: 1
+  bossRoomTemplate:
+    roomPrefab: {fileID: 0}
+    size: {x: 16, y: 16}
+    maxNumberGenerated: 100
+  exitRoomTemplate:
+    roomPrefab: {fileID: 0}
+    size: {x: 16, y: 16}
+    maxNumberGenerated: 100
+  roomTemplates:
+  - roomPrefab: {fileID: 2178576938523032735, guid: f90c06b59743b2d4aa8276152a2dd73a, type: 3}
+    size: {x: 35, y: 12}
+    maxNumberGenerated: 100
+  - roomPrefab: {fileID: 8934614599702981998, guid: ce5a507f4ac69454abb4d95eb4142c69, type: 3}
+    size: {x: 11, y: 10}
+    maxNumberGenerated: 100
+  - roomPrefab: {fileID: 2084493459653918239, guid: 76e6b0c1b21fd3142b60a56b2945617c, type: 3}
+    size: {x: 13, y: 14}
+    maxNumberGenerated: 100
+  floorTile: {fileID: 11400000, guid: dea371c004f2e704d9b64222eb76e545, type: 2}
+  wallTile: {fileID: 11400000, guid: 62c5917f63b94cb4baf05564cd17f25c, type: 2}
+  leftWallTopTile: {fileID: 11400000, guid: fc408ef5e795a534cb116644dddcecc0, type: 2}
+  rightWallTopTile: {fileID: 11400000, guid: fc408ef5e795a534cb116644dddcecc0, type: 2}
+  topWallTopTile: {fileID: 11400000, guid: 2764da24406334e459d9640255c36820, type: 2}
+  bottomWallTopTile: {fileID: 11400000, guid: 2764da24406334e459d9640255c36820, type: 2}
+  bottomLeftWallTile: {fileID: 11400000, guid: 5c50c958ca749514db7b7ad2451389b6, type: 2}
+  topLeftWallTile: {fileID: 11400000, guid: fc408ef5e795a534cb116644dddcecc0, type: 2}
+  topLeftCornerTopTile: {fileID: 11400000, guid: a8f52ab6f124dd547b5eaa078dc31826, type: 2}
+  bottomRightWallTile: {fileID: 11400000, guid: 18eaa604c0df88a4c9dd573f71d9a538, type: 2}
+  bottomRightWallTopTile: {fileID: 11400000, guid: 5daff0d2616016248aa374bbdf6605e6, type: 2}
+  topRightWallTopTile: {fileID: 11400000, guid: 84e2c203a9e6eec489209c2ce932e545, type: 2}
+  topRightWallTopSideTile: {fileID: 11400000, guid: fc408ef5e795a534cb116644dddcecc0, type: 2}
+  roomCount: 30
+  gridSize: {x: 120, y: 120}
+  roomPadding: 5
+  margin: 5
+  ambientLightColor: {r: 1, g: 1, b: 1, a: 1}
+  backgroundMaterial: {fileID: 0}
+  ambientMusic: {fileID: 0}

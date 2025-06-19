@@ -4935,44 +4935,6 @@ MonoBehaviour:
   floorTilemap: {fileID: 1014909410}
   wallTilemap: {fileID: 1599702771}
   wallTopTilemap: {fileID: 1227947399}
-  floorTile: {fileID: 11400000, guid: 77539c41703ba8a4782bf79f7d83c8e2, type: 2}
-  wallTile: {fileID: 11400000, guid: 82337c020af3a964d8cfe901fae6d401, type: 2}
-  leftWallTopTile: {fileID: 11400000, guid: a37f5ddf385afbb4bb926a9e09954e05, type: 2}
-  rightWallTopTile: {fileID: 11400000, guid: a37f5ddf385afbb4bb926a9e09954e05, type: 2}
-  topWallTopTile: {fileID: 11400000, guid: efb7c72d7772e8640be63881af65d663, type: 2}
-  bottomWallTopTile: {fileID: 11400000, guid: efb7c72d7772e8640be63881af65d663, type: 2}
-  bottomLeftWallTile: {fileID: 11400000, guid: cdd54129cf4ec2d47be26ab5dbc4d765, type: 2}
-  topLeftWallTile: {fileID: 11400000, guid: a37f5ddf385afbb4bb926a9e09954e05, type: 2}
-  topLeftCornerTopTile: {fileID: 11400000, guid: af47442d9f4edca48bdd10442cf3e9bb, type: 2}
-  bottomRightWallTile: {fileID: 11400000, guid: f415235f301146947a720375536b1012, type: 2}
-  bottomRightWallTopTile: {fileID: 11400000, guid: 13ac685207e7a134d9d29d2336be0909, type: 2}
-  topRightWallTopTile: {fileID: 11400000, guid: daabbecfb0c03054b8974190d2edbccb, type: 2}
-  topRightWallTopSideTile: {fileID: 11400000, guid: a37f5ddf385afbb4bb926a9e09954e05, type: 2}
-  playerSpawnTemplate:
-    roomPrefab: {fileID: 4460516088700042975, guid: 40c7ad5cef314b74ab08f9e6fd12f99b, type: 3}
-    size: {x: 8, y: 7}
-    maxNumberGenerated: 1
-  bossRoomTemplate:
-    roomPrefab: {fileID: 0}
-    size: {x: 16, y: 16}
-    maxNumberGenerated: 100
-  exitRoomTemplate:
-    roomPrefab: {fileID: 0}
-    size: {x: 16, y: 16}
-    maxNumberGenerated: 100
-  roomTemplates:
-  - roomPrefab: {fileID: 2178576938523032735, guid: f90c06b59743b2d4aa8276152a2dd73a, type: 3}
-    size: {x: 34, y: 13}
-    maxNumberGenerated: 100
-  - roomPrefab: {fileID: 8934614599702981998, guid: ce5a507f4ac69454abb4d95eb4142c69, type: 3}
-    size: {x: 11, y: 10}
-    maxNumberGenerated: 100
-  - roomPrefab: {fileID: 2084493459653918239, guid: 76e6b0c1b21fd3142b60a56b2945617c, type: 3}
-    size: {x: 13, y: 14}
-    maxNumberGenerated: 100
-  roomCount: 30
-  gridSize: {x: 120, y: 120}
-  roomPadding: 5
   player: {fileID: 1297016535}
 --- !u!4 &1636320352
 Transform:
@@ -7822,7 +7784,7 @@ PrefabInstance:
       objectReference: {fileID: 965272638}
     - target: {fileID: 1100107019700595688, guid: 187b70e876744d74bbac26684c145a53, type: 3}
       propertyPath: unlockedWeapons.Array.size
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1100107019700595688, guid: 187b70e876744d74bbac26684c145a53, type: 3}
       propertyPath: 'unlockedWeapons.Array.data[0]'

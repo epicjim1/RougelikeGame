@@ -270,6 +270,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6706c7f90f77c5b4bb19d1e2abea4cc5, type: 2}
   - {fileID: 11400000, guid: 9d0070679d308d04ab8a0ce3a7bec4af, type: 2}
   - {fileID: 11400000, guid: b30d6a69a8010d64f9da2cebaa0ca5c4, type: 2}
+  - {fileID: 11400000, guid: c20023cba0e427d4095e3da6ac78a365, type: 2}
   unlockedWeapons: []
   weaponHolder: {fileID: 3299894004091078685}
   weaponPickupPrefab: {fileID: 1424903553194257381, guid: 85c40cf34cbd6634ab935c5fd9552bc4, type: 3}

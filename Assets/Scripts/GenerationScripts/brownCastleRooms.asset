@@ -10,12 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fb9f0af58238bda4295132ccf1f9fe36, type: 3}
-  m_Name: Rooms
+  m_Name: brownCastleRooms
   m_EditorClassIdentifier: 
   templates:
   - roomPrefab: {fileID: 2178576938523032735, guid: f90c06b59743b2d4aa8276152a2dd73a, type: 3}
     size: {x: 35, y: 12}
-    topDoor: 0
-    rightDoor: 0
-    bottomDoor: 1
-    leftDoor: 0
+    maxNumberGenerated: 100
+  - roomPrefab: {fileID: 8934614599702981998, guid: ce5a507f4ac69454abb4d95eb4142c69, type: 3}
+    size: {x: 11, y: 10}
+    maxNumberGenerated: 100
+  - roomPrefab: {fileID: 2084493459653918239, guid: 76e6b0c1b21fd3142b60a56b2945617c, type: 3}
+    size: {x: 13, y: 14}
+    maxNumberGenerated: 100

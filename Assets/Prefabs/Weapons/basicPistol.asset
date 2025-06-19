@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4f83d5dcf6ce2884b82953ff10542812, type: 3}
-  m_Name: basePistol
+  m_Name: basicPistol
   m_EditorClassIdentifier: 
   isRanged: 1
   weaponName: Basic Pistol

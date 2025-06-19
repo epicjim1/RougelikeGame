@@ -162,7 +162,7 @@ public class RowSpinner : MonoBehaviour
         }
 
         selectedValue = closestItem.name;
-        Debug.Log("Selected Item: " + selectedValue);
+        //Debug.Log("Selected Item: " + selectedValue);
 
         float yOffset = arrowY - closestItem.transform.position.y;
         targetPosition = transform.localPosition + new Vector3(0, yOffset, 0);

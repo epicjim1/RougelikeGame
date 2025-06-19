@@ -7,11 +7,12 @@ public class DungeonGenerator : MonoBehaviour
 {
     private HashSet<Vector2Int> corridorTiles = new();
 
+    [Header("Tilemaps")]
     public Tilemap floorTilemap;
     public Tilemap wallTilemap;
     public Tilemap wallTopTilemap;
 
-    public TileBase floorTile;
+    /*public TileBase floorTile;
     public TileBase wallTile;
     public TileBase leftWallTopTile;
     public TileBase rightWallTopTile;
@@ -33,19 +34,23 @@ public class DungeonGenerator : MonoBehaviour
     public int roomCount = 10;
     public Vector2Int gridSize = new(100, 100);
     public int roomPadding = 2;
-    int margin = 5;
+    int margin = 5;*/
 
+    [Header("Player")]
     public GameObject player;
     private GameObject playerSpawnRoomInstance;
 
+    // Level configuration will be loaded from GameManager
+    private LevelConfiguration currentConfig;
+
+    // Generation data
     private bool[,] occupiedTiles;
     private bool[,] roomTiles;
     private List<RoomInstance> placedRooms = new();
 
     void Start()
     {
-        occupiedTiles = new bool[gridSize.x, gridSize.y];
-        roomTiles = new bool[gridSize.x, gridSize.y];
+        Init();
         //DrawDebugGrid();
         GenerateRooms();
         ConnectRoomsWithPaths();
@@ -59,6 +64,52 @@ public class DungeonGenerator : MonoBehaviour
         {
             Debug.LogError("Player spawn room was not placed!");
         }
+        //ApplyLevelTheme();
+    }
+
+    private void Init()
+    {
+        // Get level configuration from GameManager
+        if (GameManager.Instance != null)
+        {
+            currentConfig = GameManager.Instance.GetCurrentLevelConfig();
+        }
+
+        if (currentConfig == null)
+        {
+            Debug.LogError("No level configuration found! Cannot generate dungeon.");
+            return;
+        }
+
+        occupiedTiles = new bool[currentConfig.gridSize.x, currentConfig.gridSize.y];
+        roomTiles = new bool[currentConfig.gridSize.x, currentConfig.gridSize.y];
+    }
+
+    void ApplyLevelTheme()
+    {
+        if (currentConfig == null) return;
+
+        // Apply ambient lighting
+        RenderSettings.ambientLight = currentConfig.ambientLightColor;
+
+        // Apply background material if available
+        if (currentConfig.backgroundMaterial != null)
+        {
+            Camera.main.backgroundColor = currentConfig.ambientLightColor;
+        }
+
+        // Play ambient music
+        if (currentConfig.ambientMusic != null)
+        {
+            AudioSource audioSource = Camera.main.GetComponent<AudioSource>();
+            if (audioSource == null)
+            {
+                audioSource = Camera.main.gameObject.AddComponent<AudioSource>();
+            }
+            audioSource.clip = currentConfig.ambientMusic;
+            audioSource.loop = true;
+            audioSource.Play();
+        }
     }
 
     void GenerateRooms()
@@ -70,26 +121,26 @@ public class DungeonGenerator : MonoBehaviour
         Dictionary<RoomTemplate, int> templateCounts = new Dictionary<RoomTemplate, int>();
 
         // Initialize counts
-        foreach (RoomTemplate template in roomTemplates)
+        foreach (RoomTemplate template in currentConfig.roomTemplates)
         {
             templateCounts[template] = 0;
         }
 
         // === Phase 1: Place special rooms first ===
-        PlaceSpecialRoom(playerSpawnTemplate, ref playerSpawnRoomInstance);  // Player start room
-        templateCounts[playerSpawnTemplate] = 0;
-        templateCounts[playerSpawnTemplate]++;
+        PlaceSpecialRoom(currentConfig.playerSpawnTemplate, ref playerSpawnRoomInstance);  // Player start room
+        templateCounts[currentConfig.playerSpawnTemplate] = 0;
+        templateCounts[currentConfig.playerSpawnTemplate]++;
 
-        //PlaceSpecialRoom(bossRoomTemplate, ref _);     // Boss room
-        //templateCounts[bossRoomTemplate]++;
+        //PlaceSpecialRoom(currentConfig.bossRoomTemplate, ref _);     // Boss room
+        //templateCounts[currentConfig.bossRoomTemplate]++;
 
-        //PlaceSpecialRoom(exitRoomTemplate, ref _);     // Exit room
-        //templateCounts[exitRoomTemplate]++;
+        //PlaceSpecialRoom(currentConfig.exitRoomTemplate, ref _);     // Exit room
+        //templateCounts[currentConfig.exitRoomTemplate]++;
 
-        while (placedRooms.Count < roomCount && attempts < maxAttempts)
+        while (placedRooms.Count < currentConfig.roomCount && attempts < maxAttempts)
         {
             attempts++;
-            RoomTemplate template = roomTemplates[Random.Range(0, roomTemplates.Length)];
+            RoomTemplate template = currentConfig.roomTemplates[Random.Range(0, currentConfig.roomTemplates.Length)];
 
             // Check if we can still place this template
             if (templateCounts[template] >= template.maxNumberGenerated)
@@ -100,8 +151,8 @@ public class DungeonGenerator : MonoBehaviour
             Vector2Int size = template.size;
 
             Vector2Int pos = new Vector2Int(
-                Random.Range(margin, gridSize.x - margin - size.x),
-                Random.Range(margin, gridSize.y - margin - size.y)
+                Random.Range(currentConfig.margin, currentConfig.gridSize.x - currentConfig.margin - size.x),
+                Random.Range(currentConfig.margin, currentConfig.gridSize.y - currentConfig.margin - size.y)
             );
 
             if (!CanPlaceRoom(pos, size)) continue;
@@ -137,8 +188,8 @@ public class DungeonGenerator : MonoBehaviour
             Vector2Int size = template.size;
 
             Vector2Int pos = forcedPos ?? new Vector2Int(
-                Random.Range(margin, gridSize.x - margin - size.x),
-                Random.Range(margin, gridSize.y - margin - size.y)
+                Random.Range(currentConfig.margin, currentConfig.gridSize.x - currentConfig.margin - size.x),
+                Random.Range(currentConfig.margin, currentConfig.gridSize.y - currentConfig.margin - size.y)
             );
 
             if (!CanPlaceRoom(pos, size))
@@ -198,8 +249,8 @@ public class DungeonGenerator : MonoBehaviour
 
     bool CanPlaceRoom(Vector2Int pos, Vector2Int size)
     {
-        Vector2Int start = new Vector2Int(Mathf.Max(pos.x - roomPadding, 0), Mathf.Max(pos.y - roomPadding, 0));
-        Vector2Int end = new Vector2Int(Mathf.Min(pos.x + size.x + roomPadding, gridSize.x), Mathf.Min(pos.y + size.y + roomPadding, gridSize.y));
+        Vector2Int start = new Vector2Int(Mathf.Max(pos.x - currentConfig.roomPadding, 0), Mathf.Max(pos.y - currentConfig.roomPadding, 0));
+        Vector2Int end = new Vector2Int(Mathf.Min(pos.x + size.x + currentConfig.roomPadding, currentConfig.gridSize.x), Mathf.Min(pos.y + size.y + currentConfig.roomPadding, currentConfig.gridSize.y));
 
         for (int x = start.x; x < end.x; x++)
         {
@@ -239,8 +290,8 @@ public class DungeonGenerator : MonoBehaviour
                 {
                     Vector2Int clearPos = new Vector2Int(gridPos.x + dx, gridPos.y + dy);
 
-                    if (clearPos.x >= 0 && clearPos.x < gridSize.x &&
-                        clearPos.y >= 0 && clearPos.y < gridSize.y)
+                    if (clearPos.x >= 0 && clearPos.x < currentConfig.gridSize.x &&
+                        clearPos.y >= 0 && clearPos.y < currentConfig.gridSize.y)
                     {
                         occupiedTiles[clearPos.x, clearPos.y] = false;
                     }
@@ -368,7 +419,7 @@ public class DungeonGenerator : MonoBehaviour
                 {
                     Vector2Int tile = new Vector2Int(p.x + dx, p.y + dy);
 
-                    if (tile.x >= 0 && tile.x < gridSize.x && tile.y >= 0 && tile.y < gridSize.y)
+                    if (tile.x >= 0 && tile.x < currentConfig.gridSize.x && tile.y >= 0 && tile.y < currentConfig.gridSize.y)
                     {
                         corridorTiles.Add(tile);
                     }
@@ -385,7 +436,7 @@ public class DungeonGenerator : MonoBehaviour
             {
                 Vector3 worldP = new Vector3(tile.x + 0.5f, tile.y + 0.5f, 0);
                 Debug.DrawLine(worldP, worldP + Vector3.one * 0.01f, Color.red, 30f);
-                floorTilemap.SetTile(new Vector3Int(tile.x, tile.y, 0), floorTile);
+                floorTilemap.SetTile(new Vector3Int(tile.x, tile.y, 0), currentConfig.floorTile);
             }
         }
     }
@@ -418,8 +469,8 @@ public class DungeonGenerator : MonoBehaviour
                 Vector2Int wallPos = corridorTile + directions[i];
 
                 // Make sure wall position is within bounds
-                if (wallPos.x < 0 || wallPos.x >= gridSize.x ||
-                    wallPos.y < 0 || wallPos.y >= gridSize.y)
+                if (wallPos.x < 0 || wallPos.x >= currentConfig.gridSize.x ||
+                    wallPos.y < 0 || wallPos.y >= currentConfig.gridSize.y)
                     continue;
 
                 // Don't place walls on corridor tiles or room tiles
@@ -445,8 +496,8 @@ public class DungeonGenerator : MonoBehaviour
                         rightWallTopPositions.Add(corridorTile);
                         break;
                         Vector2Int rightWallTopPos = wallPos + new Vector2Int(-1, 0);
-                        if (rightWallTopPos.x >= 0 && rightWallTopPos.x < gridSize.x &&
-                            rightWallTopPos.y >= 0 && rightWallTopPos.y < gridSize.y &&
+                        if (rightWallTopPos.x >= 0 && rightWallTopPos.x < currentConfig.gridSize.x &&
+                            rightWallTopPos.y >= 0 && rightWallTopPos.y < currentConfig.gridSize.y &&
                             corridorTiles.Contains(rightWallTopPos)) // Make sure it's on a corridor tile
                         {
                             rightWallTopPositions.Add(rightWallTopPos);
@@ -459,31 +510,31 @@ public class DungeonGenerator : MonoBehaviour
         // Place all wall tiles
         foreach (var pos in wallPositions)
         {
-            wallTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), wallTile);
-            if (floorTilemap.GetTile(new Vector3Int(pos.x + 1, pos.y, 0)) == floorTile)
+            wallTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), currentConfig.wallTile);
+            if (floorTilemap.GetTile(new Vector3Int(pos.x + 1, pos.y, 0)) == currentConfig.floorTile)
             {
-                wallTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), bottomRightWallTile);
+                wallTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), currentConfig.bottomRightWallTile);
 
-                if (floorTilemap.GetTile(new Vector3Int(pos.x, pos.y - 1, 0)) == floorTile &&
-                    floorTilemap.GetTile(new Vector3Int(pos.x - 1, pos.y, 0)) == floorTile &&
-                    floorTilemap.GetTile(new Vector3Int(pos.x, pos.y + 1, 0)) != floorTile)
+                if (floorTilemap.GetTile(new Vector3Int(pos.x, pos.y - 1, 0)) == currentConfig.floorTile &&
+                    floorTilemap.GetTile(new Vector3Int(pos.x - 1, pos.y, 0)) == currentConfig.floorTile &&
+                    floorTilemap.GetTile(new Vector3Int(pos.x, pos.y + 1, 0)) != currentConfig.floorTile)
                 {
-                    wallTilemap.SetTile(new Vector3Int(pos.x - 1, pos.y, 0), bottomLeftWallTile);
+                    wallTilemap.SetTile(new Vector3Int(pos.x - 1, pos.y, 0), currentConfig.bottomLeftWallTile);
                 }
             }
             /*if (wallTilemap.GetTile(new Vector3Int(pos.x - 1, pos.y, 0)) == null)
             {
-                wallTilemap.SetTile(new Vector3Int(pos.x - 1, pos.y, 0), bottomLeftWallTile);
+                wallTilemap.SetTile(new Vector3Int(pos.x - 1, pos.y, 0), currentConfig.bottomLeftWallTile);
             }*/
-            if (floorTilemap.GetTile(new Vector3Int(pos.x, pos.y + 1, 0)) == floorTile)
+            if (floorTilemap.GetTile(new Vector3Int(pos.x, pos.y + 1, 0)) == currentConfig.floorTile)
             {
-                if (floorTilemap.GetTile(new Vector3Int(pos.x - 1, pos.y + 1, 0)) != floorTile)
+                if (floorTilemap.GetTile(new Vector3Int(pos.x - 1, pos.y + 1, 0)) != currentConfig.floorTile)
                 {
-                    wallTilemap.SetTile(new Vector3Int(pos.x - 1, pos.y, 0), bottomLeftWallTile);
+                    wallTilemap.SetTile(new Vector3Int(pos.x - 1, pos.y, 0), currentConfig.bottomLeftWallTile);
                 }
-                if (floorTilemap.GetTile(new Vector3Int(pos.x + 1, pos.y + 1, 0)) != floorTile)
+                if (floorTilemap.GetTile(new Vector3Int(pos.x + 1, pos.y + 1, 0)) != currentConfig.floorTile)
                 {
-                    wallTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), bottomRightWallTile);
+                    wallTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), currentConfig.bottomRightWallTile);
                 }
             }
         }
@@ -491,38 +542,38 @@ public class DungeonGenerator : MonoBehaviour
         // Place left wall top tiles
         foreach (var pos in leftWallTopPositions)
         {
-            if (wallTilemap.GetTile(new Vector3Int(pos.x, pos.y, 0)) != (wallTile || bottomRightWallTile))
+            if (wallTilemap.GetTile(new Vector3Int(pos.x, pos.y, 0)) != (currentConfig.wallTile || currentConfig.bottomRightWallTile))
             {
-                wallTopTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), leftWallTopTile);
+                wallTopTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), currentConfig.leftWallTopTile);
             }
             else
             {
-                if (floorTilemap.GetTile(new Vector3Int(pos.x, pos.y - 1, 0)) != floorTile)
+                if (floorTilemap.GetTile(new Vector3Int(pos.x, pos.y - 1, 0)) != currentConfig.floorTile)
                 {
-                    wallTopTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), leftWallTopTile);
+                    wallTopTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), currentConfig.leftWallTopTile);
                 }
             }
 
-            if (wallTilemap.GetTile(new Vector3Int(pos.x + 1, pos.y + 1, 0)) == (wallTile || bottomRightWallTile))
+            if (wallTilemap.GetTile(new Vector3Int(pos.x + 1, pos.y + 1, 0)) == (currentConfig.wallTile || currentConfig.bottomRightWallTile))
             {
-                wallTopTilemap.SetTile(new Vector3Int(pos.x, pos.y + 1, 0), leftWallTopTile);
+                wallTopTilemap.SetTile(new Vector3Int(pos.x, pos.y + 1, 0), currentConfig.leftWallTopTile);
 
                 if (wallTopTilemap.GetTile(new Vector3Int(pos.x, pos.y + 2, 0)) == null)
                 {
                     Debug.Log("topleft corner from left trigggers");
-                    wallTopTilemap.SetTile(new Vector3Int(pos.x, pos.y + 2, 0), topLeftCornerTopTile);
+                    wallTopTilemap.SetTile(new Vector3Int(pos.x, pos.y + 2, 0), currentConfig.topLeftCornerTopTile);
                 }
             }
-            if (wallTilemap.GetTile(new Vector3Int(pos.x + 1, pos.y, 0)) == wallTile)
+            if (wallTilemap.GetTile(new Vector3Int(pos.x + 1, pos.y, 0)) == currentConfig.wallTile)
             {
-                wallTopTilemap.SetTile(new Vector3Int(pos.x, pos.y + 1, 0), topLeftCornerTopTile);
+                wallTopTilemap.SetTile(new Vector3Int(pos.x, pos.y + 1, 0), currentConfig.topLeftCornerTopTile);
             }
-            if (wallTilemap.GetTile(new Vector3Int(pos.x, pos.y - 1, 0)) == (wallTile || bottomRightWallTile) &&
-                wallTilemap.GetTile(new Vector3Int(pos.x - 1, pos.y - 1, 0)) == wallTile &&
-                wallTilemap.GetTile(new Vector3Int(pos.x + 1, pos.y - 1, 0)) == wallTile)
+            if (wallTilemap.GetTile(new Vector3Int(pos.x, pos.y - 1, 0)) == (currentConfig.wallTile || currentConfig.bottomRightWallTile) &&
+                wallTilemap.GetTile(new Vector3Int(pos.x - 1, pos.y - 1, 0)) == currentConfig.wallTile &&
+                wallTilemap.GetTile(new Vector3Int(pos.x + 1, pos.y - 1, 0)) == currentConfig.wallTile)
             {
                 Debug.Log("asdasdasdas");
-                wallTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), leftWallTopTile);
+                wallTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), currentConfig.leftWallTopTile);
             }
         }
 
@@ -533,44 +584,44 @@ public class DungeonGenerator : MonoBehaviour
 
             Vector2Int right = pos + new Vector2Int(1, 0);
             Vector2Int up = pos + new Vector2Int(0, 1);
-            if (wallTilemap.GetTile(new Vector3Int(right.x, right.y, 0)) == (wallTile || bottomRightWallTile))
+            if (wallTilemap.GetTile(new Vector3Int(right.x, right.y, 0)) == (currentConfig.wallTile || currentConfig.bottomRightWallTile))
             {
-                if (wallTopTilemap.GetTile(new Vector3Int(up.x, up.y, 0)) == null && floorTilemap.GetTile(new Vector3Int(pos.x + 1, pos.y - 1, 0)) != floorTile)
+                if (wallTopTilemap.GetTile(new Vector3Int(up.x, up.y, 0)) == null && floorTilemap.GetTile(new Vector3Int(pos.x + 1, pos.y - 1, 0)) != currentConfig.floorTile)
                 {
-                    wallTopTilemap.SetTile(new Vector3Int(up.x, up.y, 0), topLeftCornerTopTile);
+                    wallTopTilemap.SetTile(new Vector3Int(up.x, up.y, 0), currentConfig.topLeftCornerTopTile);
                 }
                 else
                 {
-                    wallTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), bottomLeftWallTile);
-                    if (wallTilemap.GetTile(new Vector3Int(pos.x, pos.y + 1, 0)) == wallTile)
+                    wallTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), currentConfig.bottomLeftWallTile);
+                    if (wallTilemap.GetTile(new Vector3Int(pos.x, pos.y + 1, 0)) == currentConfig.wallTile)
                     {
-                        wallTopTilemap.SetTile(new Vector3Int(pos.x, pos.y + 1, 0), rightWallTopTile);
+                        wallTopTilemap.SetTile(new Vector3Int(pos.x, pos.y + 1, 0), currentConfig.rightWallTopTile);
                     }
-                    if (floorTilemap.GetTile(new Vector3Int(up.x + 1, up.y, 0)) == floorTile)
+                    if (floorTilemap.GetTile(new Vector3Int(up.x + 1, up.y, 0)) == currentConfig.floorTile)
                     {
-                        wallTopTilemap.SetTile(new Vector3Int(up.x, up.y, 0), topLeftCornerTopTile);
+                        wallTopTilemap.SetTile(new Vector3Int(up.x, up.y, 0), currentConfig.topLeftCornerTopTile);
                     }
                     continue;
                 }
             }
 
-            if (wallTilemap.GetTile(new Vector3Int(pos.x, pos.y - 1, 0)) == (wallTile || bottomRightWallTile) &&
-                wallTilemap.GetTile(new Vector3Int(pos.x - 1, pos.y - 1, 0)) == wallTile &&
-                wallTilemap.GetTile(new Vector3Int(pos.x + 1, pos.y - 1, 0)) == wallTile)
+            if (wallTilemap.GetTile(new Vector3Int(pos.x, pos.y - 1, 0)) == (currentConfig.wallTile || currentConfig.bottomRightWallTile) &&
+                wallTilemap.GetTile(new Vector3Int(pos.x - 1, pos.y - 1, 0)) == currentConfig.wallTile &&
+                wallTilemap.GetTile(new Vector3Int(pos.x + 1, pos.y - 1, 0)) == currentConfig.wallTile)
             {
                 Debug.Log("asdasdasdas");
-                wallTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), rightWallTopTile);
+                wallTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), currentConfig.rightWallTopTile);
                 continue;
             }
 
-            if (wallTilemap.GetTile(new Vector3Int(up.x, up.y, 0)) == wallTile)
+            if (wallTilemap.GetTile(new Vector3Int(up.x, up.y, 0)) == currentConfig.wallTile)
             {
-                wallTopTilemap.SetTile(new Vector3Int(up.x, up.y, 0), rightWallTopTile);
+                wallTopTilemap.SetTile(new Vector3Int(up.x, up.y, 0), currentConfig.rightWallTopTile);
             }
 
-            if (floorTilemap.GetTile(new Vector3Int(pos.x + 1, pos.y - 1, 0)) != floorTile)
+            if (floorTilemap.GetTile(new Vector3Int(pos.x + 1, pos.y - 1, 0)) != currentConfig.floorTile)
             {
-                wallTopTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), rightWallTopTile);
+                wallTopTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), currentConfig.rightWallTopTile);
             }
         }
 
@@ -578,48 +629,48 @@ public class DungeonGenerator : MonoBehaviour
         foreach (var pos in topWallPositions)
         {
             Vector2Int topWallTopPos = pos + new Vector2Int(0, 1);
-            if (topWallTopPos.x >= 0 && topWallTopPos.x < gridSize.x &&
-                topWallTopPos.y >= 0 && topWallTopPos.y < gridSize.y)
+            if (topWallTopPos.x >= 0 && topWallTopPos.x < currentConfig.gridSize.x &&
+                topWallTopPos.y >= 0 && topWallTopPos.y < currentConfig.gridSize.y)
             {
-                wallTopTilemap.SetTile(new Vector3Int(topWallTopPos.x, topWallTopPos.y, 0), topWallTopTile);
-                /*if (wallTopTilemap.GetTile(new Vector3Int(topWallTopPos.x, topWallTopPos.y, 0)) == leftWallTopTile &&
-                    wallTopTilemap.GetTile(new Vector3Int(topWallTopPos.x + 1, topWallTopPos.y, 0)) == topWallTopTile &&
-                    floorTilemap.GetTile(new Vector3Int(topWallTopPos.x + 1, topWallTopPos.y, 0)) == floorTile)
+                wallTopTilemap.SetTile(new Vector3Int(topWallTopPos.x, topWallTopPos.y, 0), currentConfig.topWallTopTile);
+                /*if (wallTopTilemap.GetTile(new Vector3Int(topWallTopPos.x, topWallTopPos.y, 0)) == currentConfig.leftWallTopTile &&
+                    wallTopTilemap.GetTile(new Vector3Int(topWallTopPos.x + 1, topWallTopPos.y, 0)) == currentConfig.topWallTopTile &&
+                    floorTilemap.GetTile(new Vector3Int(topWallTopPos.x + 1, topWallTopPos.y, 0)) == currentConfig.floorTile)
                 {
                     Debug.Log("top wall tile detected left side topwalltile");
-                    wallTilemap.SetTile(new Vector3Int(topWallTopPos.x, topWallTopPos.y, 0), topWallTopTile);
+                    wallTilemap.SetTile(new Vector3Int(topWallTopPos.x, topWallTopPos.y, 0), currentConfig.topWallTopTile);
                 }
                 else
                 {
-                    wallTopTilemap.SetTile(new Vector3Int(topWallTopPos.x, topWallTopPos.y, 0), topWallTopTile);
+                    wallTopTilemap.SetTile(new Vector3Int(topWallTopPos.x, topWallTopPos.y, 0), currentConfig.topWallTopTile);
                 }*/
 
-                /*if (wallTilemap.GetTile(new Vector3Int(topWallTopPos.x - 1, topWallTopPos.y, 0)) == wallTile)
+                /*if (wallTilemap.GetTile(new Vector3Int(topWallTopPos.x - 1, topWallTopPos.y, 0)) == currentConfig.wallTile)
                 {
-                    wallTopTilemap.SetTile(new Vector3Int(topWallTopPos.x - 1, topWallTopPos.y, 0), rightWallTopTile);
+                    wallTopTilemap.SetTile(new Vector3Int(topWallTopPos.x - 1, topWallTopPos.y, 0), currentConfig.rightWallTopTile);
                 }*/
 
-                if (floorTilemap.GetTile(new Vector3Int(topWallTopPos.x + 1, topWallTopPos.y - 1, 0)) == floorTile)
+                if (floorTilemap.GetTile(new Vector3Int(topWallTopPos.x + 1, topWallTopPos.y - 1, 0)) == currentConfig.floorTile)
                 {
-                    if (wallTopTilemap.GetTile(new Vector3Int(topWallTopPos.x, topWallTopPos.y - 1, 0)) == leftWallTopTile ||
-                        floorTilemap.GetTile(new Vector3Int(topWallTopPos.x, topWallTopPos.y, 0)) == floorTile)
+                    if (wallTopTilemap.GetTile(new Vector3Int(topWallTopPos.x, topWallTopPos.y - 1, 0)) == currentConfig.leftWallTopTile ||
+                        floorTilemap.GetTile(new Vector3Int(topWallTopPos.x, topWallTopPos.y, 0)) == currentConfig.floorTile)
                     {
-                        wallTopTilemap.SetTile(new Vector3Int(topWallTopPos.x, topWallTopPos.y, 0), topRightWallTopTile);
-                        if (wallTopTilemap.GetTile(new Vector3Int(topWallTopPos.x - 1, topWallTopPos.y - 1, 0)) == leftWallTopTile)
+                        wallTopTilemap.SetTile(new Vector3Int(topWallTopPos.x, topWallTopPos.y, 0), currentConfig.topRightWallTopTile);
+                        if (wallTopTilemap.GetTile(new Vector3Int(topWallTopPos.x - 1, topWallTopPos.y - 1, 0)) == currentConfig.leftWallTopTile)
                         {
-                            wallTopTilemap.SetTile(new Vector3Int(topWallTopPos.x - 1, topWallTopPos.y, 0), topLeftCornerTopTile);
+                            wallTopTilemap.SetTile(new Vector3Int(topWallTopPos.x - 1, topWallTopPos.y, 0), currentConfig.topLeftCornerTopTile);
                         }
                     }
                     else
                     {
-                        wallTopTilemap.SetTile(new Vector3Int(topWallTopPos.x, topWallTopPos.y, 0), bottomRightWallTopTile);
+                        wallTopTilemap.SetTile(new Vector3Int(topWallTopPos.x, topWallTopPos.y, 0), currentConfig.bottomRightWallTopTile);
                     }
                 }
 
-                if (wallTopTilemap.GetTile(new Vector3Int(topWallTopPos.x, topWallTopPos.y - 1, 0)) == leftWallTopTile ||
-                    wallTopTilemap.GetTile(new Vector3Int(topWallTopPos.x, topWallTopPos.y - 1, 0)) == rightWallTopTile)
+                if (wallTopTilemap.GetTile(new Vector3Int(topWallTopPos.x, topWallTopPos.y - 1, 0)) == currentConfig.leftWallTopTile ||
+                    wallTopTilemap.GetTile(new Vector3Int(topWallTopPos.x, topWallTopPos.y - 1, 0)) == currentConfig.rightWallTopTile)
                 {
-                    wallTopTilemap.SetTile(new Vector3Int(topWallTopPos.x, topWallTopPos.y, 0), topRightWallTopTile);
+                    wallTopTilemap.SetTile(new Vector3Int(topWallTopPos.x, topWallTopPos.y, 0), currentConfig.topRightWallTopTile);
                 }
             }
         }
@@ -628,33 +679,33 @@ public class DungeonGenerator : MonoBehaviour
         foreach (var pos in bottomWallPositions)
         {
             Vector2Int bottomWallTopPos = pos + new Vector2Int(0, 1);
-            if (bottomWallTopPos.x >= 0 && bottomWallTopPos.x < gridSize.x &&
-                bottomWallTopPos.y >= 0 && bottomWallTopPos.y < gridSize.y)
+            if (bottomWallTopPos.x >= 0 && bottomWallTopPos.x < currentConfig.gridSize.x &&
+                bottomWallTopPos.y >= 0 && bottomWallTopPos.y < currentConfig.gridSize.y)
             {
-                if (wallTopTilemap.GetTile(new Vector3Int(bottomWallTopPos.x, bottomWallTopPos.y, 0)) == rightWallTopTile)
+                if (wallTopTilemap.GetTile(new Vector3Int(bottomWallTopPos.x, bottomWallTopPos.y, 0)) == currentConfig.rightWallTopTile)
                 {
-                    wallTopTilemap.SetTile(new Vector3Int(bottomWallTopPos.x, bottomWallTopPos.y, 0), bottomRightWallTopTile);
+                    wallTopTilemap.SetTile(new Vector3Int(bottomWallTopPos.x, bottomWallTopPos.y, 0), currentConfig.bottomRightWallTopTile);
                 }
                 else
                 {
-                    wallTopTilemap.SetTile(new Vector3Int(bottomWallTopPos.x, bottomWallTopPos.y, 0), bottomWallTopTile);
+                    wallTopTilemap.SetTile(new Vector3Int(bottomWallTopPos.x, bottomWallTopPos.y, 0), currentConfig.bottomWallTopTile);
                 }
 
-                if (floorTilemap.GetTile(new Vector3Int(bottomWallTopPos.x + 1, bottomWallTopPos.y - 1, 0)) == floorTile)
+                if (floorTilemap.GetTile(new Vector3Int(bottomWallTopPos.x + 1, bottomWallTopPos.y - 1, 0)) == currentConfig.floorTile)
                 {
-                    if (wallTopTilemap.GetTile(new Vector3Int(bottomWallTopPos.x, bottomWallTopPos.y - 1, 0)) == leftWallTopTile ||
-                        wallTopTilemap.GetTile(new Vector3Int(bottomWallTopPos.x, bottomWallTopPos.y - 1, 0)) == bottomRightWallTopTile ||
-                        floorTilemap.GetTile(new Vector3Int(bottomWallTopPos.x, bottomWallTopPos.y, 0)) == floorTile)
+                    if (wallTopTilemap.GetTile(new Vector3Int(bottomWallTopPos.x, bottomWallTopPos.y - 1, 0)) == currentConfig.leftWallTopTile ||
+                        wallTopTilemap.GetTile(new Vector3Int(bottomWallTopPos.x, bottomWallTopPos.y - 1, 0)) == currentConfig.bottomRightWallTopTile ||
+                        floorTilemap.GetTile(new Vector3Int(bottomWallTopPos.x, bottomWallTopPos.y, 0)) == currentConfig.floorTile)
                     {
-                        wallTopTilemap.SetTile(new Vector3Int(bottomWallTopPos.x, bottomWallTopPos.y, 0), topRightWallTopTile);
-                        if (wallTopTilemap.GetTile(new Vector3Int(bottomWallTopPos.x - 1, bottomWallTopPos.y - 1, 0)) == leftWallTopTile)
+                        wallTopTilemap.SetTile(new Vector3Int(bottomWallTopPos.x, bottomWallTopPos.y, 0), currentConfig.topRightWallTopTile);
+                        if (wallTopTilemap.GetTile(new Vector3Int(bottomWallTopPos.x - 1, bottomWallTopPos.y - 1, 0)) == currentConfig.leftWallTopTile)
                         {
-                            wallTopTilemap.SetTile(new Vector3Int(bottomWallTopPos.x - 1, bottomWallTopPos.y, 0), topLeftCornerTopTile);
+                            wallTopTilemap.SetTile(new Vector3Int(bottomWallTopPos.x - 1, bottomWallTopPos.y, 0), currentConfig.topLeftCornerTopTile);
                         }
                     }
                     else
                     {
-                        wallTopTilemap.SetTile(new Vector3Int(bottomWallTopPos.x, bottomWallTopPos.y, 0), bottomRightWallTopTile);
+                        wallTopTilemap.SetTile(new Vector3Int(bottomWallTopPos.x, bottomWallTopPos.y, 0), currentConfig.bottomRightWallTopTile);
                     }
                 }
             }
@@ -674,8 +725,8 @@ public class DungeonGenerator : MonoBehaviour
                 continue;
 
             Vector2Int rightPos = corridorTile + new Vector2Int(1, 0);
-            if (rightPos.x >= 0 && rightPos.x < gridSize.x &&
-                rightPos.y >= 0 && rightPos.y < gridSize.y &&
+            if (rightPos.x >= 0 && rightPos.x < currentConfig.gridSize.x &&
+                rightPos.y >= 0 && rightPos.y < currentConfig.gridSize.y &&
                 !corridorTiles.Contains(rightPos) && !occupiedTiles[rightPos.x, rightPos.y])
             {
                 rightWallPositions.Add(rightPos);
@@ -694,9 +745,9 @@ public class DungeonGenerator : MonoBehaviour
             {
                 //Debug.Log($"Bottom-left corner at {leftOfBottom}");
 
-                if (wallTilemap.GetTile(new Vector3Int(leftOfBottom.x, leftOfBottom.y + 1, 0)) != topWallTopTile)
+                if (wallTilemap.GetTile(new Vector3Int(leftOfBottom.x, leftOfBottom.y + 1, 0)) != currentConfig.topWallTopTile)
                 {
-                    wallTilemap.SetTile(new Vector3Int(leftOfBottom.x, leftOfBottom.y, 0), bottomLeftWallTile);
+                    wallTilemap.SetTile(new Vector3Int(leftOfBottom.x, leftOfBottom.y, 0), currentConfig.bottomLeftWallTile);
                 }
             }
         }
@@ -712,12 +763,12 @@ public class DungeonGenerator : MonoBehaviour
                 // Bottom-right wall goes one to the left of where it was
                 Vector2Int bottomRightPos = rightOfBottom + new Vector2Int(-1, 0);
                 //Debug.Log($"Bottom-right corner at {bottomRightPos}");
-                wallTilemap.SetTile(new Vector3Int(bottomRightPos.x, bottomRightPos.y, 0), bottomRightWallTile);
+                wallTilemap.SetTile(new Vector3Int(bottomRightPos.x, bottomRightPos.y, 0), currentConfig.bottomRightWallTile);
 
                 // Bottom-right wall top goes right above the right wall
                 Vector2Int cornerTopPos = rightOfBottom + new Vector2Int(-1, 1);
                 //Debug.Log($"Bottom-right wall top at {cornerTopPos}");
-                wallTopTilemap.SetTile(new Vector3Int(cornerTopPos.x, cornerTopPos.y, 0), bottomRightWallTopTile);
+                wallTopTilemap.SetTile(new Vector3Int(cornerTopPos.x, cornerTopPos.y, 0), currentConfig.bottomRightWallTopTile);
             }
         }
 
@@ -731,22 +782,22 @@ public class DungeonGenerator : MonoBehaviour
             {
                 // Top-left wall top goes one lower than before
                 Vector2Int topLeftPos = leftOfTop;
-                if (topLeftPos.x >= 0 && topLeftPos.x < gridSize.x &&
-                    topLeftPos.y >= 0 && topLeftPos.y < gridSize.y &&
+                if (topLeftPos.x >= 0 && topLeftPos.x < currentConfig.gridSize.x &&
+                    topLeftPos.y >= 0 && topLeftPos.y < currentConfig.gridSize.y &&
                     !corridorTiles.Contains(topLeftPos) && !occupiedTiles[topLeftPos.x, topLeftPos.y])
                 {
                     //Debug.Log($"Top-left wall top at {topLeftPos}");
-                    wallTopTilemap.SetTile(new Vector3Int(topLeftPos.x, topLeftPos.y, 0), topLeftWallTile);
+                    wallTopTilemap.SetTile(new Vector3Int(topLeftPos.x, topLeftPos.y, 0), currentConfig.topLeftWallTile);
                 }
 
                 // Top-left corner top goes where the old top-left was
                 Vector2Int cornerTopPos = leftOfTop + new Vector2Int(0, 1);
-                if (cornerTopPos.x >= 0 && cornerTopPos.x < gridSize.x &&
-                    cornerTopPos.y >= 0 && cornerTopPos.y < gridSize.y &&
+                if (cornerTopPos.x >= 0 && cornerTopPos.x < currentConfig.gridSize.x &&
+                    cornerTopPos.y >= 0 && cornerTopPos.y < currentConfig.gridSize.y &&
                     !corridorTiles.Contains(cornerTopPos) && !occupiedTiles[cornerTopPos.x, cornerTopPos.y])
                 {
                     //Debug.Log($"Top-left corner top at {cornerTopPos}");
-                    wallTopTilemap.SetTile(new Vector3Int(cornerTopPos.x, cornerTopPos.y, 0), topLeftCornerTopTile);
+                    wallTopTilemap.SetTile(new Vector3Int(cornerTopPos.x, cornerTopPos.y, 0), currentConfig.topLeftCornerTopTile);
                 }
             }
         }
@@ -761,25 +812,25 @@ public class DungeonGenerator : MonoBehaviour
             {
                 // Top-right wall top goes one to the left
                 Vector2Int topRightPos = rightOfTop + new Vector2Int(-1, 1);
-                if (topRightPos.x >= 0 && topRightPos.x < gridSize.x &&
-                    topRightPos.y >= 0 && topRightPos.y < gridSize.y &&
+                if (topRightPos.x >= 0 && topRightPos.x < currentConfig.gridSize.x &&
+                    topRightPos.y >= 0 && topRightPos.y < currentConfig.gridSize.y &&
                     !corridorTiles.Contains(topRightPos) && !occupiedTiles[topRightPos.x, topRightPos.y])
                 {
                     //Debug.Log($"Top-right wall top at {topRightPos}");
-                    if (wallTopTilemap.GetTile(new Vector3Int(topRightPos.x, topRightPos.y + 1, 0)) != leftWallTopTile)
+                    if (wallTopTilemap.GetTile(new Vector3Int(topRightPos.x, topRightPos.y + 1, 0)) != currentConfig.leftWallTopTile)
                     {
-                        wallTopTilemap.SetTile(new Vector3Int(topRightPos.x, topRightPos.y, 0), topRightWallTopTile);
+                        wallTopTilemap.SetTile(new Vector3Int(topRightPos.x, topRightPos.y, 0), currentConfig.topRightWallTopTile);
                     }
                 }
 
                 // Top-right wall top side goes right below the original position
                 Vector2Int sidePos = rightOfTop + new Vector2Int(-1, 0);
-                if (sidePos.x >= 0 && sidePos.x < gridSize.x &&
-                    sidePos.y >= 0 && sidePos.y < gridSize.y &&
+                if (sidePos.x >= 0 && sidePos.x < currentConfig.gridSize.x &&
+                    sidePos.y >= 0 && sidePos.y < currentConfig.gridSize.y &&
                     !corridorTiles.Contains(sidePos) && !occupiedTiles[sidePos.x, sidePos.y])
                 {
                     //Debug.Log($"Top-right wall top side at {sidePos}");
-                    wallTopTilemap.SetTile(new Vector3Int(sidePos.x, sidePos.y, 0), topRightWallTopSideTile);
+                    wallTopTilemap.SetTile(new Vector3Int(sidePos.x, sidePos.y, 0), currentConfig.topRightWallTopSideTile);
                 }
             }
         }
@@ -804,14 +855,14 @@ public class DungeonGenerator : MonoBehaviour
                 {
                     Vector2Int tile = new Vector2Int(p.x + dx, p.y + dy);
 
-                    if (tile.x >= 0 && tile.x < gridSize.x && tile.y >= 0 && tile.y < gridSize.y)
+                    if (tile.x >= 0 && tile.x < currentConfig.gridSize.x && tile.y >= 0 && tile.y < currentConfig.gridSize.y)
                     {
                         // For now: Debug draw small box
                         Vector3 worldP = new Vector3(tile.x + 0.5f, tile.y + 0.5f, 0);
                         Debug.DrawLine(worldP, worldP + Vector3.one * 0.01f, Color.red, 30f);
 
                         // OPTIONAL: Place tilemap floor tile here
-                        floorTilemap.SetTile(new Vector3Int(tile.x, tile.y, 0), floorTile);
+                        floorTilemap.SetTile(new Vector3Int(tile.x, tile.y, 0), currentConfig.floorTile);
                     }
                 }
             }
@@ -820,17 +871,17 @@ public class DungeonGenerator : MonoBehaviour
 
     void DrawDebugGrid()
     {
-        for (int x = 0; x <= gridSize.x; x++)
+        for (int x = 0; x <= currentConfig.gridSize.x; x++)
         {
             Vector3 start = new Vector3(x, 0, 0);
-            Vector3 end = new Vector3(x, gridSize.y, 0);
+            Vector3 end = new Vector3(x, currentConfig.gridSize.y, 0);
             Debug.DrawLine(start, end, Color.gray, 30f);
         }
 
-        for (int y = 0; y <= gridSize.y; y++)
+        for (int y = 0; y <= currentConfig.gridSize.y; y++)
         {
             Vector3 start = new Vector3(0, y, 0);
-            Vector3 end = new Vector3(gridSize.x, y, 0);
+            Vector3 end = new Vector3(currentConfig.gridSize.x, y, 0);
             Debug.DrawLine(start, end, Color.gray, 30f);
         }
     }
@@ -884,14 +935,14 @@ public class DungeonGenerator : MonoBehaviour
         {
             Vector2Int neighbor = pos + dir;
 
-            if (neighbor.x >= 0 && neighbor.x < gridSize.x && neighbor.y >= 0 && neighbor.y < gridSize.y)
+            if (neighbor.x >= 0 && neighbor.x < currentConfig.gridSize.x && neighbor.y >= 0 && neighbor.y < currentConfig.gridSize.y)
                 yield return neighbor;
         }
     }
 
     bool IsBlocked(Vector2Int pos)
     {
-        if (pos.x < 0 || pos.x >= gridSize.x || pos.y < 0 || pos.y >= gridSize.y)
+        if (pos.x < 0 || pos.x >= currentConfig.gridSize.x || pos.y < 0 || pos.y >= currentConfig.gridSize.y)
             return true;
 
         // Check if a 3x3 area around this position would be blocked
@@ -902,8 +953,8 @@ public class DungeonGenerator : MonoBehaviour
                 Vector2Int checkPos = new Vector2Int(pos.x + dx, pos.y + dy);
 
                 // Make sure we're within bounds
-                if (checkPos.x < 0 || checkPos.x >= gridSize.x ||
-                    checkPos.y < 0 || checkPos.y >= gridSize.y)
+                if (checkPos.x < 0 || checkPos.x >= currentConfig.gridSize.x ||
+                    checkPos.y < 0 || checkPos.y >= currentConfig.gridSize.y)
                     return true;
 
                 // Check if this tile is occupied
