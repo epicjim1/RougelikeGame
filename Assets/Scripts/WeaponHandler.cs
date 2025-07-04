@@ -41,7 +41,6 @@ public class WeaponHandler : MonoBehaviour
         }
         else
         {
-            Debug.Log("nigger");
             // Fallback: Use first weapon if GameManager is not available or no starting weapon set
             if (allWeapons.Count > 0)
             {
