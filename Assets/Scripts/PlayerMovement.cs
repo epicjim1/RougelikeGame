@@ -10,9 +10,11 @@ public class PlayerMovement : MonoBehaviour
     public Rigidbody2D rb;
     public Animator anim;
     public SpriteRenderer spriteRenderer;
+    public Healthbar healthbar;
 
     Vector2 movement;
     private bool isDashing = false;
+    private bool canMove = true;
     private float lastDashTime = -Mathf.Infinity;
 
     void Update()
@@ -41,7 +43,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!isDashing)
+        if (!isDashing && canMove)
         {
             rb.MovePosition(rb.position + movement.normalized * moveSpeed * Time.fixedDeltaTime);
         }
@@ -71,5 +73,45 @@ public class PlayerMovement : MonoBehaviour
 
         isDashing = false;
         anim.SetBool("isDashing", false);
+    }
+
+    public void takeDamage(float amount)
+    {
+        healthbar.takeDamage(amount);
+
+        if (healthbar.health <= 0)
+        {
+            PlayerDie();
+        }
+    }
+
+    public void ApplyKnockback(Vector2 direction, float force, float duration = 0.1f)
+    {
+        StartCoroutine(KnockbackCoroutine(direction, force, duration));
+    }
+
+    private System.Collections.IEnumerator KnockbackCoroutine(Vector2 direction, float force, float duration)
+    {
+        // Disable player input/movement
+        //bool wasInputEnabled = canMove; // assuming you have this flag
+        canMove = false;
+
+        rb.linearVelocity = Vector2.zero;
+        rb.AddForce(direction * force, ForceMode2D.Impulse);
+
+        yield return new WaitForSeconds(duration);
+
+        rb.linearVelocity = Vector2.zero;
+        canMove = true; // Re-enable input
+    }
+
+    public bool getIsDashing()
+    {
+        return isDashing;
+    }
+
+    public void PlayerDie ()
+    {
+        Debug.Log("Player died");
     }
 }

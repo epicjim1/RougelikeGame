@@ -33,7 +33,12 @@ public class Projectile : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.tag == "Walls")
+        if (collision.tag == "Enemy")
+        {
+            collision.GetComponent<EnemyController>().TakeDamage(damage);
+            BulletEnd();
+        }
+        else if (collision.tag == "Walls")
         {
             BulletEnd();
         }

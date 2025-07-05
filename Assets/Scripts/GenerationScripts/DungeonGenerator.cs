@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Unity.AI.Navigation;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.Tilemaps;
 
 public class DungeonGenerator : MonoBehaviour
@@ -36,6 +38,12 @@ public class DungeonGenerator : MonoBehaviour
     public int roomPadding = 2;
     int margin = 5;*/
 
+    /*[Header("NavMesh")]
+    public bool generateNavMesh = true;
+    public NavMeshSurface navMeshSurface;
+    [SerializeField] private LayerMask navMeshIncludeLayers = -1;
+    [SerializeField] private LayerMask navMeshExcludeLayers = 0;*/
+
     [Header("Player")]
     public GameObject player;
     private GameObject playerSpawnRoomInstance;
@@ -56,7 +64,7 @@ public class DungeonGenerator : MonoBehaviour
         ConnectRoomsWithPaths();
         if (playerSpawnRoomInstance != null)
         {
-            // Example: assume you have a "player" GameObject reference:
+            // Example: assume you have a "playerTransform" GameObject reference:
             player.transform.position = playerSpawnRoomInstance.transform.position + new Vector3(4, 4, 0);
             // playerSpawnOffset is optional if you want to offset within the room
         }
@@ -65,6 +73,11 @@ public class DungeonGenerator : MonoBehaviour
             Debug.LogError("Player spawn room was not placed!");
         }
         //ApplyLevelTheme();
+
+        /*if (generateNavMesh)
+        {
+            GenerateNavMesh();
+        }*/
     }
 
     private void Init()
@@ -985,4 +998,106 @@ public class DungeonGenerator : MonoBehaviour
         path.Reverse();
         return path;
     }
+
+    /*private void GenerateNavMesh()
+    {
+        // If no NavMeshSurface is assigned, try to find one or create one
+        if (navMeshSurface == null)
+        {
+            navMeshSurface = FindObjectOfType<NavMeshSurface>();
+
+            if (navMeshSurface == null)
+            {
+                // Create a new NavMeshSurface on this GameObject
+                navMeshSurface = gameObject.AddComponent<NavMeshSurface>();
+                Debug.Log("Created new NavMeshSurface component");
+            }
+        }
+
+        // Configure NavMeshSurface settings
+        ConfigureNavMeshSurface();
+
+        // Wait a frame to ensure all tilemap changes are processed
+        StartCoroutine(BakeNavMeshNextFrame());
+    }
+
+    private void ConfigureNavMeshSurface()
+    {
+        // Set NavMesh agent type (usually 0 for humanoid)
+        navMeshSurface.agentTypeID = 0;
+
+        // Set collection mode to render mesh (works best with tilemaps)
+        navMeshSurface.collectObjects = CollectObjects.All;
+
+        // Set layer masks
+        navMeshSurface.layerMask = navMeshIncludeLayers;
+        //navMeshSurface.excludeLayers = navMeshExcludeLayers;
+
+        // Use physics colliders for NavMesh generation
+        navMeshSurface.useGeometry = NavMeshCollectGeometry.PhysicsColliders;
+
+        // Set default area (walkable)
+        navMeshSurface.defaultArea = 0;
+
+        // Override tile size for better precision with small corridors
+        navMeshSurface.overrideTileSize = true;
+        navMeshSurface.tileSize = 64; // Smaller tiles for better precision
+
+        // Override voxel size for better accuracy
+        navMeshSurface.overrideVoxelSize = true;
+        navMeshSurface.voxelSize = 0.1f; // Smaller voxels for better accuracy
+    }
+
+    private System.Collections.IEnumerator BakeNavMeshNextFrame()
+    {
+        // Wait for end of frame to ensure all tilemap updates are complete
+        yield return new WaitForEndOfFrame();
+
+        // Add another small delay to be safe
+        yield return new WaitForSeconds(0.1f);
+
+        Debug.Log("Baking NavMesh...");
+
+        // Bake the NavMesh
+        navMeshSurface.BuildNavMesh();
+
+        Debug.Log("NavMesh baking complete!");
+
+        // Optional: Validate NavMesh was created successfully
+        ValidateNavMesh();
+    }
+
+    private void ValidateNavMesh()
+    {
+        NavMeshTriangulation triangulation = NavMesh.CalculateTriangulation();
+
+        if (triangulation.vertices.Length > 0)
+        {
+            Debug.Log($"NavMesh generated successfully with {triangulation.vertices.Length} vertices and {triangulation.indices.Length / 3} triangles");
+        }
+        else
+        {
+            Debug.LogWarning("NavMesh appears to be empty! Check your tilemap colliders and NavMesh settings.");
+        }
+    }
+
+    // Method to rebake NavMesh if needed during runtime
+    public void RebakeNavMesh()
+    {
+        if (navMeshSurface != null)
+        {
+            navMeshSurface.BuildNavMesh();
+            Debug.Log("NavMesh rebaked!");
+        }
+    }
+
+    // Method to clear NavMesh
+    public void ClearNavMesh()
+    {
+        if (navMeshSurface != null)
+        {
+            navMeshSurface.RemoveData();
+            Debug.Log("NavMesh cleared!");
+        }
+    }*/
 }
