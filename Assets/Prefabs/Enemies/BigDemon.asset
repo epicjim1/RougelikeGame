@@ -16,7 +16,7 @@ MonoBehaviour:
   maxHealth: 100
   moveSpeed: 3
   chaseRange: 10
-  attackRange: 0.7
+  attackRange: 0.4
   attackCooldown: 1
   damage: 30
   isRanged: 0

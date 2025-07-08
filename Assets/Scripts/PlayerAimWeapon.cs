@@ -46,7 +46,7 @@ public class PlayerAimWeapon : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            aimAnim.SetTrigger("Shoot");
+            //aimAnim.SetTrigger("Shoot");
             TempCamShake.Instance.Shake(0.1f, 0.1f);
         }
     }

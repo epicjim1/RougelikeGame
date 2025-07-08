@@ -38,6 +38,11 @@ public class Projectile : MonoBehaviour
             collision.GetComponent<EnemyController>().TakeDamage(damage);
             BulletEnd();
         }
+        else if (collision.tag == "Player")
+        {
+            collision.GetComponent<PlayerMovement>().takeDamage(damage);
+            BulletEnd();
+        }
         else if (collision.tag == "Walls")
         {
             BulletEnd();

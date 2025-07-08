@@ -14,14 +14,14 @@ public class Weapon : MonoBehaviour
 
     private void Start()
     {
-        aimLine = GetComponent<LineRenderer>();
+        //aimLine = GetComponent<LineRenderer>();
     }
 
     private void Update()
     {
         if (weaponData.isRanged)
         {
-            Laser();
+            //Laser();
         }
     }
 

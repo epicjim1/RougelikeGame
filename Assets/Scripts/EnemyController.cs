@@ -9,12 +9,17 @@ using UnityEngine.EventSystems;
 public class EnemyController : MonoBehaviour
 {
     public EnemyData enemyData;
+    public GameObject weapon;
+    public WeaponData weaponData;
+    public Transform aimTransform;
 
     private PlayerMovement playerMovement;
     private Transform playerTransform;
+    private BoxCollider2D playerCollider;
     private int currentHealth;
     private float lastAttackTime;
     private bool isChasing = false;
+    private float visionOffsetY = 0.7f;
 
     /*private float nextWaypointDistance = 3f;
     private int currentWaypoint = 0;
@@ -34,6 +39,7 @@ public class EnemyController : MonoBehaviour
         GameObject player = GameObject.FindWithTag("Player");
         playerMovement = player.GetComponent<PlayerMovement>();
         playerTransform = player.transform;
+        playerCollider = player.GetComponent<BoxCollider2D>();
         currentHealth = enemyData.maxHealth;
 
         //seeker = GetComponent<Seeker>();
@@ -44,20 +50,29 @@ public class EnemyController : MonoBehaviour
 
         aiPath.canMove = false;
         aiPath.maxSpeed = enemyData.moveSpeed;
+
+        if (weapon != null)
+        {
+            weapon.GetComponent<Weapon>().SetData(weaponData);
+        }
     }
 
     void Update()
     {
         if (playerTransform == null) return;
 
-        Vector2 playerTarget = new Vector2(playerTransform.position.x + 0f, playerTransform.position.y - 0.7f);
-        Vector2 origin = new Vector2(transform.position.x, transform.position.y);
+        //if (isChasing && visionOffsetY != 0)
+        //    visionOffsetY = 0;
+
+        //Vector2 playerTarget = new Vector2(playerTransform.position.x, playerTransform.position.y - visionOffsetY);
+        Vector2 origin = new Vector2(transform.position.x, transform.position.y -.0f);
+        Vector2 playerTarget = playerCollider.ClosestPoint(origin);
         Vector2 directionToPlayer = (playerTarget - origin).normalized;
         float distance = Vector2.Distance(origin, playerTarget);
 
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, directionToPlayer, distance, LayerMask.GetMask("Walls"));
+        RaycastHit2D hit = Physics2D.Raycast(origin, directionToPlayer, distance, LayerMask.GetMask("Walls"));
         bool playerVisible = hit.collider == null;
-        Debug.DrawRay(transform.position, directionToPlayer * distance, playerVisible ? Color.green : Color.red);
+        Debug.DrawRay(origin, directionToPlayer * distance, playerVisible ? Color.green : Color.red);
 
         if (!enemyData.isRanged)
         {
@@ -68,7 +83,6 @@ public class EnemyController : MonoBehaviour
 
             if (distance < enemyData.attackRange)
             {
-                // Attack
                 aiPath.canMove = false;
                 animator.SetBool("running", false);
 
@@ -84,7 +98,6 @@ public class EnemyController : MonoBehaviour
             }
             else if (isChasing)
             {
-                //Debug.Log(distance);
                 //aiPath.canMove = true;
                 animator.SetBool("running", true);
 
@@ -102,10 +115,10 @@ public class EnemyController : MonoBehaviour
                 else if (aiPath.desiredVelocity.x > -0.01f)
                     spriteRenderer.flipX = false;
 
-                if (aiPath.reachedEndOfPath && distance < 1.1f)
+                if (distance < 1.1f && aiPath.reachedEndOfPath)
                 {
                     aiPath.canMove = false;
-                    Vector2 newPosition = rb.position + directionToPlayer * enemyData.moveSpeed * Time.deltaTime;
+                    Vector2 newPosition = rb.position + directionToPlayer * enemyData.moveSpeed * 2 * Time.deltaTime;
                     rb.MovePosition(newPosition);
                 }
                 else
@@ -123,7 +136,50 @@ public class EnemyController : MonoBehaviour
         }
         else
         {
-            return;
+            /*Vector2 playerTargetToHead = new Vector2(playerTransform.position.x + 0f, playerTransform.position.y - 0.55f);
+            Vector2 originFromFeet = new Vector2(transform.position.x, transform.position.y - .7f);
+            Vector2 directionToPlayerFeet = (playerTargetToHead - originFromFeet).normalized;
+            float distanceFromFeet = Vector2.Distance(originFromFeet, playerTargetToHead);
+
+            RaycastHit2D hit2 = Physics2D.Raycast(originFromFeet, directionToPlayerFeet, distanceFromFeet, LayerMask.GetMask("Walls"));
+            bool playerVisibleFromFeet = hit2.collider == null;
+            Debug.DrawRay(originFromFeet, directionToPlayerFeet * distanceFromFeet, playerVisibleFromFeet ? Color.green : Color.red);*/
+
+            if (distance < enemyData.chaseRange && playerVisible && !isChasing)
+            {
+                isChasing = true;
+            }
+
+            if (distance < enemyData.attackRange && playerVisible)// && playerVisibleFromFeet)
+            {
+                aiPath.canMove = false;
+                animator.SetBool("running", false);
+                Aiming();
+
+                if (Time.time > lastAttackTime + enemyData.attackCooldown)
+                {
+                    Shoot();
+                    lastAttackTime = Time.time;
+                }
+            }
+            else if (isChasing)
+            {
+                aiPath.canMove = true;
+                aiPath.destination = playerTransform.position;
+                animator.SetBool("running", true);
+                Aiming();
+
+                if (aiPath.desiredVelocity.x <= -0.01f)
+                    spriteRenderer.flipX = true;
+                else if (aiPath.desiredVelocity.x > -0.01f)
+                    spriteRenderer.flipX = false;
+            }
+            else
+            {
+                aiPath.canMove = false;
+                animator.SetBool("running", false);
+                //Patrol or return to original spot
+            }
         }
     }
 
@@ -149,11 +205,14 @@ public class EnemyController : MonoBehaviour
 
     void Shoot()
     {
-        if (enemyData.projectilePrefab == null) return;
+        /*if (enemyData.projectilePrefab == null) return;
 
         Vector2 direction = (playerTransform.position - transform.position).normalized;
-        GameObject proj = Instantiate(enemyData.projectilePrefab, transform.position, Quaternion.identity);
-        proj.GetComponent<Rigidbody2D>().linearVelocity = direction * 5f;
+        GameObject proj = Instantiate(enemyData.projectilePrefab, firePoint.position, Quaternion.identity);
+        proj.GetComponent<Rigidbody2D>().linearVelocity = direction * 5f;*/
+
+        Vector2 direction = (playerTransform.position - transform.position).normalized;
+        weapon?.GetComponent<Weapon>().Shoot(direction);
     }
 
     public void TakeDamage(int amount)
@@ -255,4 +314,15 @@ public class EnemyController : MonoBehaviour
             currentWaypoint++;
         }
     }*/
+
+    private void Aiming()
+    {
+        Vector3 aimDir = (playerTransform.position - aimTransform.position).normalized;
+        float angle = Mathf.Atan2(aimDir.y, aimDir.x) * Mathf.Rad2Deg;
+        aimTransform.eulerAngles = new Vector3(0, 0, angle);
+
+        Vector3 localScale = Vector3.one;
+        localScale.y = (angle > 90 || angle < -90) ? -1f : 1f;
+        aimTransform.localScale = localScale;
+    }
 }
