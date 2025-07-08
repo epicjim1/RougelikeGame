@@ -13,11 +13,12 @@ MonoBehaviour:
   m_Name: Imp
   m_EditorClassIdentifier: 
   enemyName: Imp
-  maxHealth: 25
-  moveSpeed: 3
-  chaseRange: 7
-  attackRange: 1
+  maxHealth: 20
+  moveSpeed: 4
+  chaseRange: 10
+  attackRange: 0.7
   attackCooldown: 1
   damage: 10
   isRanged: 0
+  knockbackStrength: 10
   projectilePrefab: {fileID: 0}

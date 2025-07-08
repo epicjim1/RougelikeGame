@@ -19,9 +19,22 @@ public class Healthbar : MonoBehaviour
     // start is called before the first frame update
     void Start()
     {
-        health = maxHealth;
+        if (GameManager.Instance != null)
+        {
+            maxHealth = GameManager.Instance.maxHealth;
+        }
+        else
+        {
+            health = maxHealth;
+        }
+
         healthslider = healthbar.GetComponent<Slider>();
         easeHealthSlider = easeHealthbar.GetComponent<Slider>();
+
+        healthslider.maxValue = maxHealth;
+        easeHealthSlider.maxValue = maxHealth;
+        healthbar.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, maxHealth * 2);
+        easeHealthbar.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, maxHealth * 2);
     }
 
     // Update is called once per frame
@@ -38,7 +51,7 @@ public class Healthbar : MonoBehaviour
         }*/
         if (Input.GetKeyDown(KeyCode.F))
         {
-            heal(10f);
+            heal(maxHealth);
         }
         if (Input.GetKeyDown(KeyCode.C))
         {
@@ -85,7 +98,7 @@ public class Healthbar : MonoBehaviour
             healthbar.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, currentWidth + amount * 2);
             easeHealthbar.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, easeCurrentWidth + amount * 2);
 
-            //health = maxHealth;
+            health = maxHealth;
         }
     }
 }

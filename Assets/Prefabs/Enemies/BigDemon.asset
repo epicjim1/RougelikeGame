@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyName: Big Demon
   maxHealth: 100
-  moveSpeed: 12
+  moveSpeed: 3
   chaseRange: 10
-  attackRange: 1
+  attackRange: 0.7
   attackCooldown: 1
-  damage: 10
+  damage: 30
   isRanged: 0
+  knockbackStrength: 20
   projectilePrefab: {fileID: 0}

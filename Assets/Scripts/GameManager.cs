@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     public string level;
     public string startingWeapon;
     public string modifier;
+    public float maxHealth = 50f;
 
     [Header("Level Configurations")]
     public LevelConfiguration[] levelConfigurations;
