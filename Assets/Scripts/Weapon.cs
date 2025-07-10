@@ -8,6 +8,8 @@ public class Weapon : MonoBehaviour
     private float lastShotTime;
 
     [Header("Projectile Settings")]
+    [SerializeField]
+    private bool isPlayer = true;
     public Transform firePoint; // assign this in prefab, typically at the gun barrel
     public ParticleSystem muzzleFlash;
     private LineRenderer aimLine;
@@ -43,7 +45,8 @@ public class Weapon : MonoBehaviour
         {
             this.gameObject.GetComponent<Animator>().SetTrigger("Shoot");
             TempCamShake.Instance.Shake(0.1f, 0.1f);
-            muzzleFlash.Emit(30);
+            if (muzzleFlash != null)
+                muzzleFlash.Emit(30);
 
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             Quaternion rot = Quaternion.Euler(0, 0, angle);
@@ -58,6 +61,7 @@ public class Weapon : MonoBehaviour
             Projectile projScript = projectile.GetComponent<Projectile>();
             if (projScript != null)
             {
+                projScript.SetPlayersBullet(isPlayer);
                 projScript.SetDirection(direction);
                 projScript.SetDamage(weaponData.damage);
             }

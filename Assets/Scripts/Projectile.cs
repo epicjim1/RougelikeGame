@@ -8,6 +8,7 @@ public class Projectile : MonoBehaviour
     private Vector3 direction;
     private int damage;
     private Rigidbody2D rb;
+    private bool playersBullet = false;
 
     public void SetDirection(Vector3 dir)
     {
@@ -19,6 +20,11 @@ public class Projectile : MonoBehaviour
         damage = dmg;
     }
 
+    public void SetPlayersBullet(bool val)
+    {
+        playersBullet = val;
+    }
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -28,17 +34,17 @@ public class Projectile : MonoBehaviour
     {
         //rb.linearVelocity = direction * speed;
         rb.AddForce(direction * speed, ForceMode2D.Impulse);
-        //BulletEnd(5f);
+        BulletEnd(5f);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.tag == "Enemy")
+        if (playersBullet && collision.tag == "Enemy")
         {
             collision.GetComponent<EnemyController>().TakeDamage(damage);
             BulletEnd();
         }
-        else if (collision.tag == "Player")
+        else if (!playersBullet && collision.tag == "Player" && !collision.GetComponent<PlayerMovement>().getIsDashing())
         {
             collision.GetComponent<PlayerMovement>().takeDamage(damage);
             BulletEnd();
@@ -51,7 +57,12 @@ public class Projectile : MonoBehaviour
 
     private void BulletEnd(float time = 0f)
     {
-        Instantiate(hitEffect, transform.position, Quaternion.identity);
+        Invoke("InstantiateHitEffect", time);
         Destroy(gameObject, time);
+    }
+
+    private void InstantiateHitEffect()
+    {
+        Instantiate(hitEffect, transform.position, Quaternion.identity);
     }
 }

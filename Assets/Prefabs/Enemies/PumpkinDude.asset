@@ -20,5 +20,5 @@ MonoBehaviour:
   attackCooldown: 1
   damage: 10
   isRanged: 1
-  knockbackStrength: 10
+  knockbackStrength: 20
   projectilePrefab: {fileID: 4463241154524670353, guid: eceb906c94e6c2241b6b6be93a09b30e, type: 3}

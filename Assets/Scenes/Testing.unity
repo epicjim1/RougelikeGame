@@ -412,7 +412,6 @@ GameObject:
   - component: {fileID: 193922363}
   - component: {fileID: 193922362}
   - component: {fileID: 193922361}
-  - component: {fileID: 193922360}
   - component: {fileID: 193922359}
   m_Layer: 7
   m_Name: BigDemon (2)
@@ -420,7 +419,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &193922359
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -438,20 +437,6 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 128
---- !u!114 &193922360
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 193922358}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9679e68a0f1144e79c664d9a11ca121, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 1
-  target: {fileID: 1297016538}
 --- !u!114 &193922361
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3517,7 +3502,6 @@ GameObject:
   - component: {fileID: 1060419743}
   - component: {fileID: 1060419748}
   - component: {fileID: 1060419747}
-  - component: {fileID: 1060419749}
   - component: {fileID: 1060419750}
   m_Layer: 7
   m_Name: Imp
@@ -3525,7 +3509,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!95 &1060419740
 Animator:
   serializedVersion: 7
@@ -3777,20 +3761,6 @@ MonoBehaviour:
   tagPenalties: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   graphMask:
     value: -1
---- !u!114 &1060419749
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1060419739}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9679e68a0f1144e79c664d9a11ca121, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 1
-  target: {fileID: 1297016538}
 --- !u!114 &1060419750
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3798,7 +3768,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1060419739}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bcae90c4dbcee4b4bb1630aade4ce762, type: 3}
   m_Name: 
@@ -3899,7 +3869,6 @@ GameObject:
   - component: {fileID: 1119469836}
   - component: {fileID: 1119469835}
   - component: {fileID: 1119469834}
-  - component: {fileID: 1119469833}
   - component: {fileID: 1119469832}
   m_Layer: 7
   m_Name: BigDemon (4)
@@ -3907,7 +3876,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1119469832
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3925,20 +3894,6 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 128
---- !u!114 &1119469833
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1119469831}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9679e68a0f1144e79c664d9a11ca121, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 1
-  target: {fileID: 1297016538}
 --- !u!114 &1119469834
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7997,9 +7952,6 @@ MonoBehaviour:
   dashSpeed: 12
   dashDuration: 0.2
   dashCooldown: 1
-  rb: {fileID: 1297016540}
-  anim: {fileID: 1297016536}
-  spriteRenderer: {fileID: 1297016537}
   healthbar: {fileID: 163574121}
 --- !u!50 &1297016540
 Rigidbody2D:
@@ -8062,7 +8014,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.008965254, y: -0.28895283}
+  m_Offset: {x: 0.0020487309, y: -0.25437117}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -8072,7 +8024,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.53567076, y: 0.9277382}
+  m_Size: {x: 0.6255832, y: 0.9969015}
   m_EdgeRadius: 0
 --- !u!114 &1297016542
 MonoBehaviour:
@@ -8103,7 +8055,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6706c7f90f77c5b4bb19d1e2abea4cc5, type: 2}
   - {fileID: 11400000, guid: 9d0070679d308d04ab8a0ce3a7bec4af, type: 2}
   - {fileID: 11400000, guid: b30d6a69a8010d64f9da2cebaa0ca5c4, type: 2}
-  unlockedWeapons: []
+  unlockedWeapons:
+  - {fileID: 11400000, guid: b30d6a69a8010d64f9da2cebaa0ca5c4, type: 2}
   weaponHolder: {fileID: 71636662}
   weaponPickupPrefab: {fileID: 1424903553194257381, guid: 85c40cf34cbd6634ab935c5fd9552bc4, type: 3}
   weaponDropPoint: {fileID: 1418488566}
@@ -8227,7 +8180,6 @@ GameObject:
   - component: {fileID: 1361769110}
   - component: {fileID: 1361769109}
   - component: {fileID: 1361769108}
-  - component: {fileID: 1361769107}
   - component: {fileID: 1361769116}
   m_Layer: 7
   m_Name: BigDemon
@@ -8235,21 +8187,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1361769107
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1361769106}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9679e68a0f1144e79c664d9a11ca121, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 1
-  target: {fileID: 1297016538}
+  m_IsActive: 0
 --- !u!114 &1361769108
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8584,7 +8522,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.033210874, y: 0.1}
+  m_Offset: {x: 0.0038166046, y: 0.099999994}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -8594,7 +8532,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.68114495, y: 0.20266485}
+  m_Size: {x: 0.6223564, y: 0.20266485}
   m_EdgeRadius: 0
 --- !u!1001 &1437397504
 PrefabInstance:
@@ -8752,7 +8690,6 @@ GameObject:
   - component: {fileID: 1506146161}
   - component: {fileID: 1506146160}
   - component: {fileID: 1506146159}
-  - component: {fileID: 1506146158}
   - component: {fileID: 1506146157}
   m_Layer: 7
   m_Name: BigDemon (1)
@@ -8760,7 +8697,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1506146157
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8778,20 +8715,6 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 128
---- !u!114 &1506146158
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1506146156}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9679e68a0f1144e79c664d9a11ca121, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 1
-  target: {fileID: 1297016538}
 --- !u!114 &1506146159
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9113,6 +9036,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 306697922}
     m_Modifications:
+    - target: {fileID: 1274304843120217655, guid: acfdedab0944ef04cbc950c0bb3f20c3, type: 3}
+      propertyPath: isPlayer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2533337015735072120, guid: acfdedab0944ef04cbc950c0bb3f20c3, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.411
@@ -11331,7 +11258,6 @@ GameObject:
   - component: {fileID: 1736628649}
   - component: {fileID: 1736628648}
   - component: {fileID: 1736628647}
-  - component: {fileID: 1736628646}
   - component: {fileID: 1736628645}
   m_Layer: 7
   m_Name: BigDemon (3)
@@ -11339,7 +11265,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1736628645
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11357,20 +11283,6 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 128
---- !u!114 &1736628646
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1736628644}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9679e68a0f1144e79c664d9a11ca121, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 1
-  target: {fileID: 1297016538}
 --- !u!114 &1736628647
 MonoBehaviour:
   m_ObjectHideFlags: 0

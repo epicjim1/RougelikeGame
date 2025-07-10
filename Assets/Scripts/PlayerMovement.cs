@@ -7,15 +7,24 @@ public class PlayerMovement : MonoBehaviour
     public float dashDuration = 0.2f;
     public float dashCooldown = 1f;
 
-    public Rigidbody2D rb;
-    public Animator anim;
-    public SpriteRenderer spriteRenderer;
+    private Rigidbody2D rb;
+    private Animator anim;
+    private SpriteRenderer spriteRenderer;
     public Healthbar healthbar;
 
     Vector2 movement;
     private bool isDashing = false;
     private bool canMove = true;
     private float lastDashTime = -Mathf.Infinity;
+    private Color originalColor;
+
+    private void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        originalColor = spriteRenderer.color;
+    }
 
     void Update()
     {
@@ -78,11 +87,19 @@ public class PlayerMovement : MonoBehaviour
     public void takeDamage(float amount)
     {
         healthbar.takeDamage(amount);
+        StartCoroutine(FlashCoroutine());
 
         if (healthbar.health <= 0)
         {
             PlayerDie();
         }
+    }
+
+    private System.Collections.IEnumerator FlashCoroutine()
+    {
+        spriteRenderer.color = Color.red;
+        yield return new WaitForSeconds(.1f);
+        spriteRenderer.color = originalColor;
     }
 
     public void ApplyKnockback(Vector2 direction, float force, float duration = 0.1f)

@@ -41,8 +41,12 @@ public class WeaponHandler : MonoBehaviour
         }
         else
         {
-            // Fallback: Use first weapon if GameManager is not available or no starting weapon set
-            if (allWeapons.Count > 0)
+            if (unlockedWeapons.Count == 1)
+            {
+                UnlockWeapon(unlockedWeapons[0]);
+                EquipWeapon(0);
+            }
+            else
             {
                 UnlockWeapon(allWeapons[0]);
                 EquipWeapon(0);
