@@ -231,7 +231,7 @@ public class EnemyController : MonoBehaviour
         currentHealth -= amount;
         if (!isFlashing)
         {
-            StartCoroutine(FlashCoroutine());
+            StartCoroutine(FlashCoroutine(Color.red));
         }
 
         if (currentHealth <= 0)
@@ -240,10 +240,24 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    private System.Collections.IEnumerator FlashCoroutine()
+    public void heal(int amount)
+    {
+        currentHealth += amount;
+        if (!isFlashing)
+        {
+            StartCoroutine(FlashCoroutine(Color.green));
+        }
+
+        if (currentHealth > enemyData.maxHealth)
+        {
+            currentHealth = enemyData.maxHealth;
+        }
+    }
+
+    private System.Collections.IEnumerator FlashCoroutine(Color c)
     {
         isFlashing = true;
-        spriteRenderer.color = Color.red;
+        spriteRenderer.color = c;
         yield return new WaitForSeconds(.1f);
         spriteRenderer.color = originalColor;
         isFlashing = false;

@@ -10,7 +10,6 @@ public class WeaponHandler : MonoBehaviour
 
     [Header("References")]
     public Transform weaponHolder;
-    //public Animator weaponAnimator;
     public GameObject weaponPickupPrefab;
     public Transform weaponDropPoint;
     public WeaponUI weaponUI;
@@ -58,6 +57,11 @@ public class WeaponHandler : MonoBehaviour
     {
         HandleShooting();
         HandleWeaponSwap();
+
+        if (!currentWeapon.isReloading && currentWeapon.currentAmmo == currentWeapon.weaponData.maxAmmo)
+        {
+            weaponUI.currAmmoText.text = currentWeapon.currentAmmo.ToString();
+        }
     }
 
     private WeaponData FindWeaponByName(string weaponName)
@@ -78,8 +82,7 @@ public class WeaponHandler : MonoBehaviour
         {
             Vector3 dir = (GetMouseWorldPosition() - weaponHolder.position).normalized;
             currentWeapon?.Shoot(dir);
-            //weaponAnimator.SetTrigger("Shoot");
-            //currentWeapon?.GetComponent<Animator>().SetTrigger("Shoot");
+            weaponUI.currAmmoText.text = currentWeapon.currentAmmo.ToString();
         }
     }
 
@@ -100,14 +103,13 @@ public class WeaponHandler : MonoBehaviour
         currentWeaponIndex = index;
         WeaponData weaponData = unlockedWeapons[index];
         currentWeapon = Instantiate(weaponData.weaponPrefab, weaponHolder).GetComponent<Weapon>();
-        currentWeapon.SetData(weaponData); // pass data in
-
-        // Apply animations
-        //if (weaponData.weaponAnimOverride != null)
-        //    weaponAnimator.runtimeAnimatorController = weaponData.weaponAnimOverride;
+        currentWeapon.SetData(weaponData);
 
         if (weaponUI != null)
-            weaponUI.SetWeaponSprite(weaponData.weaponSprite);
+            weaponUI.SetWeaponSprite(weaponData.weaponSprite, !weaponData.isRanged);
+
+        weaponUI.maxAmmoText.text = currentWeapon.weaponData.maxAmmo.ToString();
+        weaponUI.currAmmoText.text = currentWeapon.currentAmmo.ToString();
     }
 
     public void UnlockWeapon(WeaponData newWeapon)

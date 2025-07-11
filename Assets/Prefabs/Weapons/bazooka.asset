@@ -17,5 +17,7 @@ MonoBehaviour:
   weaponSprite: {fileID: 970723869, guid: ba40e5491a3602f448aae573b56851c6, type: 3}
   weaponPrefab: {fileID: 7128726553753448072, guid: 7aab16d46feac5e489431b5c2a1ed894, type: 3}
   fireRate: 0.5
+  maxAmmo: 5
+  reloadTime: 1
   damage: 50
   projectilePrefab: {fileID: 4463241154524670353, guid: 31a9a874e24b73e4297296fe31f4331a, type: 3}

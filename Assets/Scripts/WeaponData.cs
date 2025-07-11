@@ -8,6 +8,8 @@ public class WeaponData : ScriptableObject
     public Sprite weaponSprite;
     public GameObject weaponPrefab;
     public float fireRate;
+    public int maxAmmo;
+    public float reloadTime;
     public int damage;
     public GameObject projectilePrefab;
 }

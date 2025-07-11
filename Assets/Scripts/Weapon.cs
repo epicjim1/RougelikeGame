@@ -4,18 +4,24 @@ using static UnityEngine.Rendering.DebugUI.Table;
 
 public class Weapon : MonoBehaviour
 {
-    private WeaponData weaponData;
-    private float lastShotTime;
+    [HideInInspector]
+    public WeaponData weaponData;
 
     [Header("Projectile Settings")]
     [SerializeField]
     private bool isPlayer = true;
-    public Transform firePoint; // assign this in prefab, typically at the gun barrel
+    public Transform firePoint;
     public ParticleSystem muzzleFlash;
+
     private LineRenderer aimLine;
+    private float lastShotTime;
+    [HideInInspector] public int currentAmmo;
+    [HideInInspector] public bool isReloading = false;
+    private Quaternion originalRotation;
 
     private void Start()
     {
+        originalRotation = transform.rotation;
         //aimLine = GetComponent<LineRenderer>();
     }
 
@@ -25,24 +31,44 @@ public class Weapon : MonoBehaviour
         {
             //Laser();
         }
+        if (isPlayer)
+        {
+            if (weaponData.isRanged && Input.GetKeyDown(KeyCode.R) && !isReloading && currentAmmo < weaponData.maxAmmo)
+            {
+                StartCoroutine(Reload());
+            }
+        }
     }
 
     public void SetData(WeaponData data)
     {
         weaponData = data;
-
-        // Optional: Change visuals based on weaponData (e.g., mesh, sprite)
+        currentAmmo = weaponData.maxAmmo;
     }
 
     public void Shoot(Vector3 direction)
     {
-        if (Time.time - lastShotTime < 1f / weaponData.fireRate)
+        if (isReloading)
             return;
-
-        lastShotTime = Time.time;
 
         if (weaponData.isRanged)
         {
+            if (currentAmmo <= 0)
+            {
+                if (!isPlayer)
+                {
+                    StartCoroutine(Reload());
+                }
+                Debug.Log("Out of ammo. Press R to reload.");
+                return;
+            }
+
+            if (Time.time - lastShotTime < 1f / weaponData.fireRate)
+                return;
+
+            currentAmmo--;
+            lastShotTime = Time.time;
+
             this.gameObject.GetComponent<Animator>().SetTrigger("Shoot");
             TempCamShake.Instance.Shake(0.1f, 0.1f);
             if (muzzleFlash != null)
@@ -57,7 +83,6 @@ public class Weapon : MonoBehaviour
                 rot
             );
 
-            // Apply direction and damage to the projectile
             Projectile projScript = projectile.GetComponent<Projectile>();
             if (projScript != null)
             {
@@ -68,10 +93,47 @@ public class Weapon : MonoBehaviour
         }
         else
         {
-            //Debug.Log("IsSword");
+            if (Time.time - lastShotTime < 1f / weaponData.fireRate)
+                return;
 
+            lastShotTime = Time.time;
             this.gameObject.GetComponent<Animator>().SetTrigger("Shoot");
         }
+    }
+
+    private System.Collections.IEnumerator Reload()
+    {
+        isReloading = true;
+        this.gameObject.GetComponent<Animator>().enabled = false;
+        //transform.localRotation = Quaternion.Euler(0, 0, -45f);
+        Debug.Log("Reloading...");
+        float rotationDuration = 0.1f;
+        float timer = 0f;
+        while (timer < rotationDuration)
+        {
+            transform.localRotation = Quaternion.Slerp(Quaternion.Euler(0, 0, 0), Quaternion.Euler(0, 0, -45f), timer / rotationDuration);
+            timer += Time.deltaTime;
+            yield return null;
+        }
+        transform.localRotation = Quaternion.Euler(0, 0, -45f);
+
+        yield return new WaitForSeconds(weaponData.reloadTime);
+
+        Quaternion startLerpBackRotation = transform.localRotation;
+        timer = 0f;
+        while (timer < rotationDuration)
+        {
+            transform.localRotation = Quaternion.Slerp(startLerpBackRotation, Quaternion.Euler(0, 0, 0), timer / rotationDuration);
+            timer += Time.deltaTime;
+            yield return null;
+        }
+        transform.localRotation = Quaternion.Euler(0, 0, 0);
+
+        currentAmmo = weaponData.maxAmmo;
+        this.gameObject.GetComponent<Animator>().enabled = true;
+        isReloading = false;
+        //transform.localRotation = Quaternion.Euler(0, 0, 0); ;
+        Debug.Log("Reload complete.");
     }
 
     private void Laser()

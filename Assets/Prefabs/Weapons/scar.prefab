@@ -305,8 +305,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4646992154683838083}
   - component: {fileID: 3324692472797079247}
-  - component: {fileID: 5755525969483608590}
   - component: {fileID: 4141709957520510205}
+  - component: {fileID: 5755525969483608590}
   - component: {fileID: -5657370649927962351}
   m_Layer: 0
   m_Name: scar
@@ -388,20 +388,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &5755525969483608590
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4868409568609472563}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 71da3b2e26fe5194bb4cdae569458029, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  firePoint: {fileID: 5617978029418242166}
-  muzzleFlash: {fileID: 3808365618538368012}
 --- !u!95 &4141709957520510205
 Animator:
   serializedVersion: 7
@@ -424,6 +410,24 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &5755525969483608590
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4868409568609472563}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71da3b2e26fe5194bb4cdae569458029, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  weaponData: {fileID: 0}
+  isPlayer: 1
+  firePoint: {fileID: 5617978029418242166}
+  muzzleFlash: {fileID: 3808365618538368012}
+  currentAmmo: 0
+  isReloading: 0
 --- !u!120 &-5657370649927962351
 LineRenderer:
   serializedVersion: 2

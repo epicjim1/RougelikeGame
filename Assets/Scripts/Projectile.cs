@@ -44,6 +44,11 @@ public class Projectile : MonoBehaviour
             collision.GetComponent<EnemyController>().TakeDamage(damage);
             BulletEnd();
         }
+        else if (!playersBullet && collision.tag == "Enemy")
+        {
+            collision.GetComponent<EnemyController>().heal(damage);
+            BulletEnd();
+        }
         else if (!playersBullet && collision.tag == "Player" && !collision.GetComponent<PlayerMovement>().getIsDashing())
         {
             collision.GetComponent<PlayerMovement>().takeDamage(damage);
