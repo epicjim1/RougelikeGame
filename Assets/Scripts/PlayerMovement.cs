@@ -97,9 +97,11 @@ public class PlayerMovement : MonoBehaviour
 
     private System.Collections.IEnumerator FlashCoroutine()
     {
-        spriteRenderer.color = Color.red;
+        //spriteRenderer.color = Color.red;
+        spriteRenderer.material.SetInt("_Flash", 1);
         yield return new WaitForSeconds(.1f);
-        spriteRenderer.color = originalColor;
+        spriteRenderer.material.SetInt("_Flash", 0);
+        //spriteRenderer.color = originalColor;
     }
 
     public void ApplyKnockback(Vector2 direction, float force, float duration = 0.1f)

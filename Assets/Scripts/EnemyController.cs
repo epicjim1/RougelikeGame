@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using Pathfinding;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using static UnityEngine.UI.Image;
@@ -20,8 +21,8 @@ public class EnemyController : MonoBehaviour
     private BoxCollider2D playerCollider;
     private int currentHealth;
     private float lastAttackTime;
+    private bool canMove = true;
     private bool isChasing = false;
-    private float visionOffsetY = 0.7f;
     private float shootRayRadius = 1;
     private Color originalColor;
     private bool isFlashing = false;
@@ -56,12 +57,11 @@ public class EnemyController : MonoBehaviour
 
     void Update()
     {
-        if (playerTransform == null) return;
+        if (playerTransform == null || !canMove) return;
 
-        //if (isChasing && visionOffsetY != 0)
-        //    visionOffsetY = 0;
+        Debug.Log(canMove);
 
-        //Vector2 playerTarget = new Vector2(playerTransform.position.x, playerTransform.position.y - visionOffsetY);
+        //Vector2 playerTarget = new Vector2(playerTransform.position.x, playerTransform.position.y - 0.7f);
         Vector2 origin = new Vector2(transform.position.x, transform.position.y);
         Vector2 playerTarget = playerCollider.ClosestPoint(origin);
         Vector2 directionToPlayer = (playerTarget - origin).normalized;
@@ -254,12 +254,36 @@ public class EnemyController : MonoBehaviour
         }
     }
 
+    public void ApplyKnockback(Vector2 direction, float force, float duration = .1f)
+    {
+        StartCoroutine(KnockbackCoroutine(direction, force, duration));
+    }
+
+    private System.Collections.IEnumerator KnockbackCoroutine(Vector2 direction, float force, float duration)
+    {
+        canMove = false;
+        aiPath.canMove = false;
+        Debug.Log("Enemy knocked back");
+
+        rb.linearVelocity = Vector2.zero;
+        rb.AddForce(direction * force, ForceMode2D.Impulse);
+
+        yield return new WaitForSeconds(duration);
+
+        rb.linearVelocity = Vector2.zero;
+        aiPath.canMove = true;
+        canMove = true;
+    }
+
     private System.Collections.IEnumerator FlashCoroutine(Color c)
     {
         isFlashing = true;
-        spriteRenderer.color = c;
+        //spriteRenderer.color = c;
+        spriteRenderer.material.SetColor("_Color", c);
+        spriteRenderer.material.SetInt("_Flash", 1);
         yield return new WaitForSeconds(.1f);
-        spriteRenderer.color = originalColor;
+        spriteRenderer.material.SetInt("_Flash", 0);
+        //spriteRenderer.color = originalColor;
         isFlashing = false;
     }
 

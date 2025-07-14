@@ -20,4 +20,5 @@ MonoBehaviour:
   maxAmmo: 0
   reloadTime: 0
   damage: 20
+  knockbackStrength: 10
   projectilePrefab: {fileID: 0}

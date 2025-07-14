@@ -98,6 +98,22 @@ public class Weapon : MonoBehaviour
 
             lastShotTime = Time.time;
             this.gameObject.GetComponent<Animator>().SetTrigger("Shoot");
+            //PerformMeleeAttack();
+        }
+    }
+
+    private void PerformMeleeAttack()
+    {
+        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(firePoint.position, 1, LayerMask.GetMask("Enemy"));
+
+        foreach (Collider2D enemy in hitEnemies)
+        {
+            EnemyController controller = enemy.GetComponent<EnemyController>();
+            controller.TakeDamage(weaponData.damage);
+            Vector2 knockbackDir = (enemy.transform.position - firePoint.position).normalized;
+            float knockbackForce = weaponData.knockbackStrength;
+            controller.ApplyKnockback(knockbackDir, knockbackForce);
+            Debug.Log($"Hit {enemy.name} with melee");
         }
     }
 
@@ -145,5 +161,14 @@ public class Weapon : MonoBehaviour
 
         aimLine.SetPosition(0, firePoint.position);
         aimLine.SetPosition(1, mousePos);
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (firePoint != null)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(firePoint.position, 1);
+        }
     }
 }

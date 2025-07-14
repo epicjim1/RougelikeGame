@@ -11,5 +11,6 @@ public class WeaponData : ScriptableObject
     public int maxAmmo;
     public float reloadTime;
     public int damage;
+    public float knockbackStrength;
     public GameObject projectilePrefab;
 }

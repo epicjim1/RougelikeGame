@@ -18,6 +18,7 @@ MonoBehaviour:
   weaponPrefab: {fileID: 4868409568609472563, guid: 7026cc7e98609f84fa4a6f0168def701, type: 3}
   fireRate: 10
   maxAmmo: 30
-  reloadTime: 3
+  reloadTime: 2
   damage: 5
+  knockbackStrength: 0
   projectilePrefab: {fileID: 4463241154524670353, guid: eceb906c94e6c2241b6b6be93a09b30e, type: 3}
