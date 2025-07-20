@@ -36,6 +36,7 @@ MonoBehaviour:
   - roomPrefab: {fileID: 2084493459653918239, guid: 76e6b0c1b21fd3142b60a56b2945617c, type: 3}
     size: {x: 13, y: 14}
     maxNumberGenerated: 100
+  collisionTile: {fileID: 11400000, guid: b03cc37245d40da41aae9ba636abbd84, type: 2}
   floorTile: {fileID: 11400000, guid: 77539c41703ba8a4782bf79f7d83c8e2, type: 2}
   wallTile: {fileID: 11400000, guid: 82337c020af3a964d8cfe901fae6d401, type: 2}
   leftWallTopTile: {fileID: 11400000, guid: a37f5ddf385afbb4bb926a9e09954e05, type: 2}

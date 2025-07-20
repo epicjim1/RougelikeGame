@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 368342971888189047}
   m_Layer: 0
   m_Name: TilemapBase
-  m_TagString: Untagged
+  m_TagString: floor
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3990,7 +3990,7 @@ GameObject:
   - component: {fileID: 6015970733007313634}
   - component: {fileID: 5219063454552910769}
   - component: {fileID: 6895921041939423672}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Collison
   m_TagString: Walls
   m_Icon: {fileID: 0}

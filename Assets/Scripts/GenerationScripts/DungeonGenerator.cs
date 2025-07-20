@@ -7,46 +7,25 @@ using UnityEngine.Tilemaps;
 
 public class DungeonGenerator : MonoBehaviour
 {
-    private HashSet<Vector2Int> corridorTiles = new();
-
     [Header("Tilemaps")]
     public Tilemap floorTilemap;
     public Tilemap wallTilemap;
     public Tilemap wallTopTilemap;
-
-    /*public TileBase floorTile;
-    public TileBase wallTile;
-    public TileBase leftWallTopTile;
-    public TileBase rightWallTopTile;
-    public TileBase topWallTopTile;
-    public TileBase bottomWallTopTile;
-
-    public TileBase bottomLeftWallTile;
-    public TileBase topLeftWallTile;
-    public TileBase topLeftCornerTopTile;
-    public TileBase bottomRightWallTile;
-    public TileBase bottomRightWallTopTile;
-    public TileBase topRightWallTopTile;
-    public TileBase topRightWallTopSideTile;
-
-    public RoomTemplate playerSpawnTemplate;
-    public RoomTemplate bossRoomTemplate;
-    public RoomTemplate exitRoomTemplate;
-    public RoomTemplate[] roomTemplates;
-    public int roomCount = 10;
-    public Vector2Int gridSize = new(100, 100);
-    public int roomPadding = 2;
-    int margin = 5;*/
-
-    /*[Header("NavMesh")]
-    public bool generateNavMesh = true;
-    public NavMeshSurface navMeshSurface;
-    [SerializeField] private LayerMask navMeshIncludeLayers = -1;
-    [SerializeField] private LayerMask navMeshExcludeLayers = 0;*/
+    public Tilemap collisonTilemap;
 
     [Header("Player")]
     public GameObject player;
     private GameObject playerSpawnRoomInstance;
+
+    [Header("Enemy Spawning")]
+    public AstarPath astarPath;
+    public GameObject[] enemyPrefabs; // An array of enemy prefabs to spawn
+    public float[] enemySpawnWeights;
+    public int minEnemiesPerRoom = 1;
+    public int maxEnemiesPerRoom = 3;
+    [Range(0, 1)]
+    public float corridorEnemyChance = 0.05f; // 5% chance to spawn an enemy on a corridor tile
+    public float minSpawnDistanceToPlayer = 5f;
 
     // Level configuration will be loaded from GameManager
     private LevelConfiguration currentConfig;
@@ -55,6 +34,7 @@ public class DungeonGenerator : MonoBehaviour
     private bool[,] occupiedTiles;
     private bool[,] roomTiles;
     private List<RoomInstance> placedRooms = new();
+    private HashSet<Vector2Int> corridorTiles = new();
 
     void Start()
     {
@@ -62,22 +42,22 @@ public class DungeonGenerator : MonoBehaviour
         //DrawDebugGrid();
         GenerateRooms();
         ConnectRoomsWithPaths();
+        StartCoroutine(ScanAstarGraph());
         if (playerSpawnRoomInstance != null)
         {
-            // Example: assume you have a "playerTransform" GameObject reference:
             player.transform.position = playerSpawnRoomInstance.transform.position + new Vector3(4, 4, 0);
-            // playerSpawnOffset is optional if you want to offset within the room
         }
         else
         {
             Debug.LogError("Player spawn room was not placed!");
         }
+        SpawnEnemies();
         //ApplyLevelTheme();
+    }
 
-        /*if (generateNavMesh)
-        {
-            GenerateNavMesh();
-        }*/
+    private void Update()
+    {
+
     }
 
     private void Init()
@@ -524,6 +504,7 @@ public class DungeonGenerator : MonoBehaviour
         foreach (var pos in wallPositions)
         {
             wallTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), currentConfig.wallTile);
+            collisonTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), currentConfig.collisionTile);
             if (floorTilemap.GetTile(new Vector3Int(pos.x + 1, pos.y, 0)) == currentConfig.floorTile)
             {
                 wallTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), currentConfig.bottomRightWallTile);
@@ -558,22 +539,24 @@ public class DungeonGenerator : MonoBehaviour
             if (wallTilemap.GetTile(new Vector3Int(pos.x, pos.y, 0)) != (currentConfig.wallTile || currentConfig.bottomRightWallTile))
             {
                 wallTopTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), currentConfig.leftWallTopTile);
+                collisonTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), currentConfig.collisionTile);
             }
             else
             {
                 if (floorTilemap.GetTile(new Vector3Int(pos.x, pos.y - 1, 0)) != currentConfig.floorTile)
                 {
                     wallTopTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), currentConfig.leftWallTopTile);
+                    collisonTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), currentConfig.collisionTile);
                 }
             }
 
             if (wallTilemap.GetTile(new Vector3Int(pos.x + 1, pos.y + 1, 0)) == (currentConfig.wallTile || currentConfig.bottomRightWallTile))
             {
                 wallTopTilemap.SetTile(new Vector3Int(pos.x, pos.y + 1, 0), currentConfig.leftWallTopTile);
+                collisonTilemap.SetTile(new Vector3Int(pos.x, pos.y + 1, 0), currentConfig.collisionTile);
 
                 if (wallTopTilemap.GetTile(new Vector3Int(pos.x, pos.y + 2, 0)) == null)
                 {
-                    Debug.Log("topleft corner from left trigggers");
                     wallTopTilemap.SetTile(new Vector3Int(pos.x, pos.y + 2, 0), currentConfig.topLeftCornerTopTile);
                 }
             }
@@ -585,8 +568,8 @@ public class DungeonGenerator : MonoBehaviour
                 wallTilemap.GetTile(new Vector3Int(pos.x - 1, pos.y - 1, 0)) == currentConfig.wallTile &&
                 wallTilemap.GetTile(new Vector3Int(pos.x + 1, pos.y - 1, 0)) == currentConfig.wallTile)
             {
-                Debug.Log("asdasdasdas");
                 wallTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), currentConfig.leftWallTopTile);
+                collisonTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), currentConfig.collisionTile);
             }
         }
 
@@ -609,6 +592,7 @@ public class DungeonGenerator : MonoBehaviour
                     if (wallTilemap.GetTile(new Vector3Int(pos.x, pos.y + 1, 0)) == currentConfig.wallTile)
                     {
                         wallTopTilemap.SetTile(new Vector3Int(pos.x, pos.y + 1, 0), currentConfig.rightWallTopTile);
+                        collisonTilemap.SetTile(new Vector3Int(pos.x + 1, pos.y + 1, 0), currentConfig.collisionTile);
                     }
                     if (floorTilemap.GetTile(new Vector3Int(up.x + 1, up.y, 0)) == currentConfig.floorTile)
                     {
@@ -622,19 +606,21 @@ public class DungeonGenerator : MonoBehaviour
                 wallTilemap.GetTile(new Vector3Int(pos.x - 1, pos.y - 1, 0)) == currentConfig.wallTile &&
                 wallTilemap.GetTile(new Vector3Int(pos.x + 1, pos.y - 1, 0)) == currentConfig.wallTile)
             {
-                Debug.Log("asdasdasdas");
                 wallTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), currentConfig.rightWallTopTile);
+                collisonTilemap.SetTile(new Vector3Int(pos.x + 1, pos.y, 0), currentConfig.collisionTile);
                 continue;
             }
 
             if (wallTilemap.GetTile(new Vector3Int(up.x, up.y, 0)) == currentConfig.wallTile)
             {
                 wallTopTilemap.SetTile(new Vector3Int(up.x, up.y, 0), currentConfig.rightWallTopTile);
+                collisonTilemap.SetTile(new Vector3Int(pos.x + 1, pos.y, 0), currentConfig.collisionTile);
             }
 
             if (floorTilemap.GetTile(new Vector3Int(pos.x + 1, pos.y - 1, 0)) != currentConfig.floorTile)
             {
                 wallTopTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), currentConfig.rightWallTopTile);
+                collisonTilemap.SetTile(new Vector3Int(pos.x + 1, pos.y, 0), currentConfig.collisionTile);
             }
         }
 
@@ -999,105 +985,221 @@ public class DungeonGenerator : MonoBehaviour
         return path;
     }
 
-    /*private void GenerateNavMesh()
+    private System.Collections.IEnumerator ScanAstarGraph()
     {
-        // If no NavMeshSurface is assigned, try to find one or create one
-        if (navMeshSurface == null)
-        {
-            navMeshSurface = FindObjectOfType<NavMeshSurface>();
+        // Wait until the end of the frame to ensure all colliders have been updated
+        yield return new WaitForEndOfFrame();
 
-            if (navMeshSurface == null)
+        if (astarPath != null)
+        {
+            astarPath.Scan();
+        }
+    }
+
+    /// <summary>
+    /// Main method to orchestrate enemy spawning.
+    /// </summary>
+    void SpawnEnemies()
+    {
+        if (enemyPrefabs == null || enemyPrefabs.Length == 0)
+        {
+            Debug.LogWarning("No enemy prefabs assigned. Skipping enemy spawning.");
+            return;
+        }
+
+        SpawnEnemiesInRooms();
+        SpawnEnemiesInCorridors();
+    }
+
+    /// <summary>
+    /// Spawns enemies inside the generated rooms.
+    /// </summary>
+    private void SpawnEnemiesInRooms()
+    {
+        foreach (var roomInstance in placedRooms)
+        {
+            // Skip the player's starting room
+            if (roomInstance.instance == playerSpawnRoomInstance) continue;
+
+            // Determine how many enemies to spawn in this room
+            int enemyCount = Random.Range(minEnemiesPerRoom, maxEnemiesPerRoom + 1);
+
+            for (int i = 0; i < enemyCount; i++)
             {
-                // Create a new NavMeshSurface on this GameObject
-                navMeshSurface = gameObject.AddComponent<NavMeshSurface>();
-                Debug.Log("Created new NavMeshSurface component");
+                Vector2Int spawnGridPos = GetRandomPointInRoom(roomInstance);
+                Vector3 spawnWorldPos = new Vector3(spawnGridPos.x + 0.5f, spawnGridPos.y + 0.5f, 0);
+
+                // Select a random enemy prefab and instantiate it
+                //GameObject enemyPrefab = enemyPrefabs[Random.Range(0, enemyPrefabs.Length)];
+                GameObject enemyPrefab = GetWeightedRandomEnemyPrefab();
+                Instantiate(enemyPrefab, spawnWorldPos, Quaternion.identity); // Parent to the generator
+            }
+        }
+    }
+
+    /// <summary>
+    /// Spawns enemies randomly throughout the corridors.
+    /// </summary>
+    private void SpawnEnemiesInCorridors()
+    {
+        foreach (Vector2Int tilePos in corridorTiles)
+        {
+            // Ensure the corridor tile is not also part of a room's floor
+            if (roomTiles[tilePos.x, tilePos.y]) continue;
+
+            // Use a random chance to decide whether to spawn an enemy here
+            if (Random.value < corridorEnemyChance)
+            {
+                Vector3 spawnWorldPos = new Vector3(tilePos.x + 0.5f, tilePos.y + 0.5f, 0);
+
+                if (!IsTooCloseToPlayer(spawnWorldPos))
+                {
+                    //GameObject enemyPrefab = enemyPrefabs[Random.Range(0, enemyPrefabs.Length)];
+                    GameObject enemyPrefab = GetWeightedRandomEnemyPrefab();
+                    Instantiate(enemyPrefab, spawnWorldPos, Quaternion.identity); // Parent to the generator
+                }
+                else
+                {
+                    Debug.Log(spawnWorldPos);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Selects a random enemy prefab based on their assigned weights.
+    /// </summary>
+    /// <returns>A GameObject representing the chosen enemy prefab, or null if no enemy can be selected.</returns>
+    private GameObject GetWeightedRandomEnemyPrefab()
+    {
+        if (enemyPrefabs == null || enemyPrefabs.Length == 0 || enemySpawnWeights == null || enemySpawnWeights.Length != enemyPrefabs.Length)
+        {
+            Debug.LogError("Cannot select weighted enemy prefab: prefabs or weights array is invalid.");
+            return null;
+        }
+
+        float totalWeight = 0f;
+        foreach (float weight in enemySpawnWeights)
+        {
+            if (weight > 0) // Only sum positive weights
+            {
+                totalWeight += weight;
             }
         }
 
-        // Configure NavMeshSurface settings
-        ConfigureNavMeshSurface();
-
-        // Wait a frame to ensure all tilemap changes are processed
-        StartCoroutine(BakeNavMeshNextFrame());
-    }
-
-    private void ConfigureNavMeshSurface()
-    {
-        // Set NavMesh agent type (usually 0 for humanoid)
-        navMeshSurface.agentTypeID = 0;
-
-        // Set collection mode to render mesh (works best with tilemaps)
-        navMeshSurface.collectObjects = CollectObjects.All;
-
-        // Set layer masks
-        navMeshSurface.layerMask = navMeshIncludeLayers;
-        //navMeshSurface.excludeLayers = navMeshExcludeLayers;
-
-        // Use physics colliders for NavMesh generation
-        navMeshSurface.useGeometry = NavMeshCollectGeometry.PhysicsColliders;
-
-        // Set default area (walkable)
-        navMeshSurface.defaultArea = 0;
-
-        // Override tile size for better precision with small corridors
-        navMeshSurface.overrideTileSize = true;
-        navMeshSurface.tileSize = 64; // Smaller tiles for better precision
-
-        // Override voxel size for better accuracy
-        navMeshSurface.overrideVoxelSize = true;
-        navMeshSurface.voxelSize = 0.1f; // Smaller voxels for better accuracy
-    }
-
-    private System.Collections.IEnumerator BakeNavMeshNextFrame()
-    {
-        // Wait for end of frame to ensure all tilemap updates are complete
-        yield return new WaitForEndOfFrame();
-
-        // Add another small delay to be safe
-        yield return new WaitForSeconds(0.1f);
-
-        Debug.Log("Baking NavMesh...");
-
-        // Bake the NavMesh
-        navMeshSurface.BuildNavMesh();
-
-        Debug.Log("NavMesh baking complete!");
-
-        // Optional: Validate NavMesh was created successfully
-        ValidateNavMesh();
-    }
-
-    private void ValidateNavMesh()
-    {
-        NavMeshTriangulation triangulation = NavMesh.CalculateTriangulation();
-
-        if (triangulation.vertices.Length > 0)
+        if (totalWeight == 0f)
         {
-            Debug.Log($"NavMesh generated successfully with {triangulation.vertices.Length} vertices and {triangulation.indices.Length / 3} triangles");
+            Debug.LogWarning("Total enemy spawn weight is 0. No enemies will be spawned via weighted selection.", this);
+            return null; // No enemies can be selected if total weight is 0
         }
-        else
+
+        float randomValue = Random.Range(0f, totalWeight);
+        float currentWeightSum = 0f;
+
+        for (int i = 0; i < enemyPrefabs.Length; i++)
         {
-            Debug.LogWarning("NavMesh appears to be empty! Check your tilemap colliders and NavMesh settings.");
+            if (enemySpawnWeights[i] <= 0) // Skip enemies with zero or negative weight
+            {
+                continue;
+            }
+
+            currentWeightSum += enemySpawnWeights[i];
+            if (randomValue <= currentWeightSum)
+            {
+                return enemyPrefabs[i];
+            }
         }
+
+        // Fallback in case something goes wrong (shouldn't happen with proper weights)
+        Debug.LogWarning("Weighted enemy selection failed to return a prefab. Returning first prefab as fallback.", this);
+        return enemyPrefabs[0];
     }
 
-    // Method to rebake NavMesh if needed during runtime
-    public void RebakeNavMesh()
+    /// <summary>
+    /// Gets a random, valid spawn point inside a given room, avoiding walls.
+    /// </summary>
+    /// <param name="room">The room to find a point in.</param>
+    /// <returns>A random grid position inside the room.</returns>
+    private Vector2Int GetRandomPointInRoom(RoomInstance room)
     {
-        if (navMeshSurface != null)
+        // Find the specific Tilemap inside this room's prefab instance.
+        GameObject floor = FindGameObjectInChildWithTag(room.instance, "floor");
+        if (floor == null)
         {
-            navMeshSurface.BuildNavMesh();
-            Debug.Log("NavMesh rebaked!");
+            return room.gridPos;
         }
+
+        Tilemap roomTilemap = floor.GetComponent<Tilemap>();
+        if (roomTilemap == null)
+        {
+            Debug.LogError($"Room {room.instance.name} has no Tilemap to check for spawn points.", room.instance);
+            return room.gridPos; // Fallback
+        }
+
+        // Get the bounds of the tilemap IN ITS LOCAL SPACE.
+        BoundsInt localBounds = roomTilemap.cellBounds;
+
+        // Try a set number of times to find a valid spot.
+        for (int i = 0; i < 50; i++)
+        {
+            // 1. Pick a random point WITHIN the tilemap's LOCAL bounds.
+            Vector3Int randomLocalPoint = new Vector3Int(
+                Random.Range(localBounds.xMin, localBounds.xMax),
+                Random.Range(localBounds.yMin, localBounds.yMax),
+                0
+            );
+
+            // 2. Check if a tile exists at that random local point.
+            if (roomTilemap.HasTile(randomLocalPoint))
+            {
+                // 3. Success! Convert the valid LOCAL point to a WORLD point for spawning.
+                Vector3 worldPos3D = roomTilemap.CellToWorld(randomLocalPoint);
+                Vector2Int worldPoint = new Vector2Int(Mathf.FloorToInt(worldPos3D.x), Mathf.FloorToInt(worldPos3D.y));
+                return worldPoint;
+            }
+        }
+
+        // If we failed after 50 attempts, log a warning and return a fallback point.
+        Debug.LogWarning($"Could not find a valid spawn point in room {room.instance.name} after 50 attempts.", room.instance);
+        return room.gridPos;
     }
 
-    // Method to clear NavMesh
-    public void ClearNavMesh()
+    public static GameObject FindGameObjectInChildWithTag(GameObject parent, string tag)
     {
-        if (navMeshSurface != null)
+        Transform t = parent.transform;
+
+        for (int i = 0; i < t.childCount; i++)
         {
-            navMeshSurface.RemoveData();
-            Debug.Log("NavMesh cleared!");
+            if (t.GetChild(i).gameObject.tag == tag)
+            {
+                return t.GetChild(i).gameObject;
+            }
+
         }
-    }*/
+
+        return null;
+    }
+
+    /// <summary>
+    /// Checks if a given world position is too close to the player.
+    /// </summary>
+    /// <param name="spawnPosition">The potential spawn position in world coordinates.</param>
+    /// <returns>True if the position is too close to the player, false otherwise.</returns>
+    private bool IsTooCloseToPlayer(Vector3 spawnPosition)
+    {
+        // Calculate the distance between the potential spawn point and the player's position
+        //float distance = Vector3.Distance(spawnPosition, player.transform.position);
+        Vector2 player2DPosition = new Vector2(player.transform.position.x, player.transform.position.y);
+        float distance = Vector2.Distance(new Vector2(spawnPosition.x, spawnPosition.y), player2DPosition);
+        //Debug.Log($"Spawn Pos: ({spawnPosition.x}, {spawnPosition.y}) Player Pos: ({player.transform.position.x}, {player.transform.position.y}) 2D Distance: {distance}");
+
+        return distance < minSpawnDistanceToPlayer;
+    }
+
+    void OnDrawGizmos()
+    {
+        // Draw a wireframe circle
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(player.transform.position, minSpawnDistanceToPlayer);
+    }
 }

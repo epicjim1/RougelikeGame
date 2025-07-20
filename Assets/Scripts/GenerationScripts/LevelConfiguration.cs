@@ -16,6 +16,7 @@ public class LevelConfiguration : ScriptableObject
     public RoomTemplate[] roomTemplates;
 
     [Header("Tileset")]
+    public TileBase collisionTile;
     public TileBase floorTile;
     public TileBase wallTile;
     public TileBase leftWallTopTile;

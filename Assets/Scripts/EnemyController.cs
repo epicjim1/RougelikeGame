@@ -15,6 +15,8 @@ public class EnemyController : MonoBehaviour
     public GameObject weapon;
     public WeaponData weaponData;
     public Transform aimTransform;
+    public float separationRadius = 1f;
+    public float separationForce = 5f;
 
     private PlayerMovement playerMovement;
     private Transform playerTransform;
@@ -26,6 +28,14 @@ public class EnemyController : MonoBehaviour
     private float shootRayRadius = 1;
     private Color originalColor;
     private bool isFlashing = false;
+
+    private float visionCheckInterval = 0.2f;
+    private float lastVisionCheckTime;
+    private float distanceCheckInterval = 0.2f;
+    private float lastDistanceCheckTime;
+    private bool playerVisible;
+    private float distance;
+    private Vector2 directionToPlayer;
 
     private AIPath aiPath;
     private Animator animator;
@@ -59,20 +69,46 @@ public class EnemyController : MonoBehaviour
     {
         if (playerTransform == null || !canMove) return;
 
-        Debug.Log(canMove);
+        if (Time.time > lastVisionCheckTime + visionCheckInterval)
+        {
+            lastVisionCheckTime = Time.time;
+            //Vector2 playerTarget = new Vector2(playerTransform.position.x, playerTransform.position.y - 0.7f);
+            Vector2 origin = new Vector2(transform.position.x, transform.position.y);
+            Vector2 playerTarget = playerCollider.ClosestPoint(origin);
+            directionToPlayer = (playerTarget - origin).normalized;
+            distance = Vector2.Distance(origin, playerTarget);
 
-        //Vector2 playerTarget = new Vector2(playerTransform.position.x, playerTransform.position.y - 0.7f);
-        Vector2 origin = new Vector2(transform.position.x, transform.position.y);
-        Vector2 playerTarget = playerCollider.ClosestPoint(origin);
-        Vector2 directionToPlayer = (playerTarget - origin).normalized;
-        float distance = Vector2.Distance(origin, playerTarget);
+            /*if (distance < enemyData.chaseRange)
+            {
+                visionCheckInterval = 0;
+            }
+            else
+            {
+                visionCheckInterval = 0.2f;
+            }*/
 
-        RaycastHit2D hit = Physics2D.Raycast(origin, directionToPlayer, distance, LayerMask.GetMask("Walls"));
-        bool playerVisible = hit.collider == null;
+            //if (!isChasing)
+            //{
+                RaycastHit2D hit;
+                if (distance > 4 && enemyData.isRanged && !isChasing)
+                {
+                    shootRayRadius = 1;
+                    hit = Physics2D.CircleCast(origin, shootRayRadius, directionToPlayer, distance, LayerMask.GetMask("Walls"));
+                    playerVisible = hit.collider == null;
+                }
+                else
+                {
+                    hit = Physics2D.Raycast(origin, directionToPlayer, distance, LayerMask.GetMask("Walls"));
+                    playerVisible = hit.collider == null;
+                }
+            Debug.DrawRay(origin, directionToPlayer * distance, playerVisible ? Color.green : Color.red);
+            //}
+        }
+
 
         if (!enemyData.isRanged)
         {
-            Debug.DrawRay(origin, directionToPlayer * distance, playerVisible ? Color.green : Color.red);
+            //Debug.DrawRay(origin, directionToPlayer * distance, playerVisible ? Color.green : Color.red);
 
             if (distance < enemyData.chaseRange && playerVisible && !isChasing)
             {
@@ -86,11 +122,7 @@ public class EnemyController : MonoBehaviour
 
                 if (Time.time > lastAttackTime + enemyData.attackCooldown)
                 {
-                    if (enemyData.isRanged)
-                        Shoot(distance);
-                    else
-                        MeleeAttack();
-
+                    MeleeAttack();
                     lastAttackTime = Time.time;
                 }
             }
@@ -111,8 +143,16 @@ public class EnemyController : MonoBehaviour
                 }
                 else
                 {
-                    aiPath.canMove = true;
-                    aiPath.destination = playerTransform.position;
+                    if (Time.time > lastDistanceCheckTime + distanceCheckInterval)
+                    {
+                        lastDistanceCheckTime = Time.time;
+                        aiPath.canMove = true;
+                        Vector2 separationOffset = ComputeSeparationOffset();
+                        Vector3 flockedDestination = playerTransform.position + (Vector3)separationOffset;
+
+                        aiPath.destination = flockedDestination;
+                        //aiPath.destination = playerTransform.position;
+                    }
                 }
             }
             else
@@ -124,37 +164,14 @@ public class EnemyController : MonoBehaviour
         }
         else
         {
-            /*Vector2 playerTargetToHead = new Vector2(playerTransform.position.x + 0f, playerTransform.position.y - 0.55f);
-            Vector2 originFromFeet = new Vector2(transform.position.x, transform.position.y - .7f);
-            Vector2 directionToPlayerFeet = (playerTargetToHead - originFromFeet).normalized;
-            float distanceFromFeet = Vector2.Distance(originFromFeet, playerTargetToHead);
+            //Debug.DrawRay(origin, directionToPlayer * distance, playerVisibleRanged ? Color.green : Color.red);
 
-            RaycastHit2D hit2 = Physics2D.Raycast(originFromFeet, directionToPlayerFeet, distanceFromFeet, LayerMask.GetMask("Walls"));
-            bool playerVisibleFromFeet = hit2.collider == null;
-            Debug.DrawRay(originFromFeet, directionToPlayerFeet * distanceFromFeet, playerVisibleFromFeet ? Color.green : Color.red);*/
-
-            //float newDistance;
-            if (distance > 4)
-            {
-                shootRayRadius = 1;
-                //newDistance = distance - 3;
-                hit = Physics2D.CircleCast(origin, shootRayRadius, directionToPlayer, distance, LayerMask.GetMask("Walls"));
-            }
-            else
-            {
-                //shootRayRadius = 0.1f;
-                //newDistance = distance;
-
-            }
-            bool playerVisibleRanged = hit.collider == null;
-            Debug.DrawRay(origin, directionToPlayer * distance, playerVisibleRanged ? Color.green : Color.red);
-
-            if (distance < enemyData.chaseRange && playerVisibleRanged && !isChasing)
+            if (distance < enemyData.chaseRange && playerVisible && !isChasing)
             {
                 isChasing = true;
             }
 
-            if (distance < enemyData.attackRange && playerVisibleRanged)// && playerVisibleFromFeet)
+            if (distance < enemyData.attackRange && playerVisible)
             {
                 aiPath.canMove = false;
                 animator.SetBool("running", false);
@@ -173,7 +190,11 @@ public class EnemyController : MonoBehaviour
             else if (isChasing)
             {
                 aiPath.canMove = true;
-                aiPath.destination = playerTransform.position;
+                Vector2 separationOffset = ComputeSeparationOffset();
+                Vector3 flockedDestination = playerTransform.position + (Vector3)separationOffset;
+
+                aiPath.destination = flockedDestination;
+                //aiPath.destination = playerTransform.position;
                 animator.SetBool("running", true);
                 Aiming();
 
@@ -208,17 +229,6 @@ public class EnemyController : MonoBehaviour
 
     void Shoot(float distance)
     {
-        /*Vector2 origin = new Vector2(transform.position.x, transform.position.y);
-        Vector2 directionToPlayer;
-
-        if (distance > 4)
-        {
-            directionToPlayer = (playerTransform.position - transform.position).normalized;
-        }
-        else
-        {
-            directionToPlayer = (playerCollider.ClosestPoint(origin) - origin).normalized;
-        }*/
         Vector2 origin = new Vector2(transform.position.x, transform.position.y);
         Transform weaponFirePoint = weapon.GetComponent<Weapon>().firePoint.transform;
         Vector2 aimDir = (playerCollider.ClosestPoint(origin) - (new Vector2(weaponFirePoint.position.x, weaponFirePoint.position.y))).normalized;
@@ -271,6 +281,9 @@ public class EnemyController : MonoBehaviour
         yield return new WaitForSeconds(duration);
 
         rb.linearVelocity = Vector2.zero;
+
+        yield return new WaitForSeconds(.5f);
+
         aiPath.canMove = true;
         canMove = true;
     }
@@ -308,5 +321,39 @@ public class EnemyController : MonoBehaviour
         Vector3 localScale = Vector3.one;
         localScale.y = (angle > 90 || angle < -90) ? -1f : 1f;
         aimTransform.localScale = localScale;
+    }
+
+    Vector2 ComputeSeparationOffset()
+    {
+        Collider2D[] neighbors = Physics2D.OverlapCircleAll(transform.position, separationRadius, LayerMask.GetMask("Enemy"));
+        Vector2 separation = Vector2.zero;
+        int count = 0;
+
+        foreach (Collider2D neighbor in neighbors)
+        {
+            if (neighbor.gameObject == gameObject) continue;
+
+            Vector2 diff = (Vector2)(transform.position - neighbor.transform.position);
+            float distance = diff.magnitude;
+
+            if (distance < 0.1f)
+            {
+                // Small random push to break perfect overlap
+                Debug.Log("enemy too close to each other");
+                diff = Random.insideUnitCircle.normalized * 2f;
+                distance = 1f;
+            }
+
+            separation += diff.normalized / distance;
+            count++;
+        }
+
+        if (count > 0)
+        {
+            separation /= count;
+            separation *= separationForce;
+        }
+
+        return separation;
     }
 }
