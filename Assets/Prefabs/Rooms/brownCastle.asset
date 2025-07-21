@@ -54,6 +54,6 @@ MonoBehaviour:
   gridSize: {x: 120, y: 120}
   roomPadding: 5
   margin: 5
-  ambientLightColor: {r: 1, g: 1, b: 1, a: 1}
-  backgroundMaterial: {fileID: 0}
-  ambientMusic: {fileID: 0}
+  ambientLightColor: {r: 0.10980393, g: 0.06666667, b: 0.08627451, a: 1}
+  audioSource: {fileID: 8434609423341301580, guid: 65f9e670b74766d4cb0ef55b15e0486a, type: 3}
+  ambientMusic: {fileID: 8300000, guid: 8eb901f9620c3ca4988e5f581438f438, type: 3}

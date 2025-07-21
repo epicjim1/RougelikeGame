@@ -39,6 +39,6 @@ public class LevelConfiguration : ScriptableObject
 
     [Header("Visual Theme")]
     public Color ambientLightColor = Color.white;
-    public Material backgroundMaterial;
+    public AudioSource audioSource;
     public AudioClip ambientMusic;
 }

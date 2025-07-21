@@ -27,7 +27,8 @@ public class DungeonGenerator : MonoBehaviour
     public float corridorEnemyChance = 0.05f; // 5% chance to spawn an enemy on a corridor tile
     public float minSpawnDistanceToPlayer = 5f;
 
-    // Level configuration will be loaded from GameManager
+    public LoadingScreenManager loadingScreenManager;
+
     private LevelConfiguration currentConfig;
 
     // Generation data
@@ -38,11 +39,28 @@ public class DungeonGenerator : MonoBehaviour
 
     void Start()
     {
+        StartCoroutine(GenerateDungeonCoroutine());
+    }
+
+    private System.Collections.IEnumerator GenerateDungeonCoroutine()
+    {
         Init();
         //DrawDebugGrid();
+        loadingScreenManager.UpdateProgress(0.1f, "Generating Rooms...");
+        yield return null;
+
         GenerateRooms();
+        loadingScreenManager.UpdateProgress(0.4f, "Connecting Rooms...");
+        yield return null;
+
         ConnectRoomsWithPaths();
-        StartCoroutine(ScanAstarGraph());
+        loadingScreenManager.UpdateProgress(0.7f, "Scanning Pathfinding Graph...");
+        yield return null;
+
+        yield return StartCoroutine(ScanAstarGraph());
+        loadingScreenManager.UpdateProgress(0.9f, "Placing Player and Enemies...");
+        yield return null;
+
         if (playerSpawnRoomInstance != null)
         {
             player.transform.position = playerSpawnRoomInstance.transform.position + new Vector3(4, 4, 0);
@@ -52,12 +70,10 @@ public class DungeonGenerator : MonoBehaviour
             Debug.LogError("Player spawn room was not placed!");
         }
         SpawnEnemies();
-        //ApplyLevelTheme();
-    }
-
-    private void Update()
-    {
-
+        ApplyLevelTheme();
+        loadingScreenManager.UpdateProgress(1.0f, "Done!");
+        yield return new WaitForSeconds(0.5f);
+        loadingScreenManager.HideLoadingScreen();
     }
 
     private void Init()
@@ -82,25 +98,17 @@ public class DungeonGenerator : MonoBehaviour
     {
         if (currentConfig == null) return;
 
-        // Apply ambient lighting
-        RenderSettings.ambientLight = currentConfig.ambientLightColor;
+        //RenderSettings.ambientLight = currentConfig.ambientLightColor;
 
-        // Apply background material if available
-        if (currentConfig.backgroundMaterial != null)
+        if (currentConfig.ambientLightColor != null)
         {
             Camera.main.backgroundColor = currentConfig.ambientLightColor;
         }
 
-        // Play ambient music
         if (currentConfig.ambientMusic != null)
         {
-            AudioSource audioSource = Camera.main.GetComponent<AudioSource>();
-            if (audioSource == null)
-            {
-                audioSource = Camera.main.gameObject.AddComponent<AudioSource>();
-            }
+            AudioSource audioSource = Instantiate(currentConfig.audioSource, transform.position, Quaternion.identity);
             audioSource.clip = currentConfig.ambientMusic;
-            audioSource.loop = true;
             audioSource.Play();
         }
     }
