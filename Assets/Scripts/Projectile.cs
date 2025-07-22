@@ -1,9 +1,18 @@
 using UnityEngine;
 
+public enum BulletType
+{
+    Normal,
+    Explosive,
+    Poison
+}
+
 public class Projectile : MonoBehaviour
 {
     public float speed = 10f;
     public GameObject hitEffect;
+
+    public BulletType bulletType = BulletType.Normal;
 
     private Vector3 direction;
     private int damage;
@@ -42,6 +51,10 @@ public class Projectile : MonoBehaviour
         if (playersBullet && collision.tag == "Enemy")
         {
             collision.GetComponent<EnemyController>().TakeDamage(damage);
+            if (bulletType == BulletType.Explosive)
+            {
+                Explode();
+            }
             BulletEnd();
         }
         else if (!playersBullet && collision.tag == "Enemy")
@@ -52,11 +65,35 @@ public class Projectile : MonoBehaviour
         else if (!playersBullet && collision.tag == "Player" && !collision.GetComponent<PlayerMovement>().getIsDashing())
         {
             collision.GetComponent<PlayerMovement>().takeDamage(damage);
+            if (bulletType == BulletType.Explosive)
+            {
+                Explode();
+            }
             BulletEnd();
         }
         else if (collision.tag == "Walls")
         {
+            if (bulletType == BulletType.Explosive)
+            {
+                Explode();
+            }
             BulletEnd();
+        }
+    }
+
+    private void Explode()
+    {
+        Collider2D[] hitObjects = Physics2D.OverlapCircleAll(transform.position, 3f);
+        foreach (Collider2D obj in hitObjects)
+        {
+            if (playersBullet && obj.CompareTag("Enemy"))
+            {
+                obj.GetComponent<EnemyController>().TakeDamage(damage);
+            }
+            else if (!playersBullet && obj.CompareTag("Player"))
+            {
+                obj.GetComponent<PlayerMovement>().takeDamage(damage);
+            }
         }
     }
 

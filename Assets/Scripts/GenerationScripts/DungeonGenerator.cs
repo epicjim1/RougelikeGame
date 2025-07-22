@@ -12,6 +12,7 @@ public class DungeonGenerator : MonoBehaviour
     public Tilemap wallTilemap;
     public Tilemap wallTopTilemap;
     public Tilemap collisonTilemap;
+    public Tilemap minimapTilemap;
 
     [Header("Player")]
     public GameObject player;
@@ -438,6 +439,7 @@ public class DungeonGenerator : MonoBehaviour
                 Vector3 worldP = new Vector3(tile.x + 0.5f, tile.y + 0.5f, 0);
                 Debug.DrawLine(worldP, worldP + Vector3.one * 0.01f, Color.red, 30f);
                 floorTilemap.SetTile(new Vector3Int(tile.x, tile.y, 0), currentConfig.floorTile);
+                minimapTilemap.SetTile(new Vector3Int(tile.x, tile.y, 0), currentConfig.collisionTile);
             }
         }
     }
@@ -1068,7 +1070,7 @@ public class DungeonGenerator : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log(spawnWorldPos);
+                    //Debug.Log(spawnWorldPos);
                 }
             }
         }

@@ -24,7 +24,7 @@ public class EnemyController : MonoBehaviour
     private int currentHealth;
     private float lastAttackTime;
     private bool canMove = true;
-    private bool isChasing = false;
+    [HideInInspector] public bool isChasing = false;
     private float shootRayRadius = 1;
     private Color originalColor;
     private bool isFlashing = false;
@@ -58,7 +58,7 @@ public class EnemyController : MonoBehaviour
 
         aiPath.canMove = false;
         aiPath.maxSpeed = enemyData.moveSpeed;
-
+        spriteRenderer.flipX = Random.value < 0.5f;
         if (weapon != null)
         {
             weapon.GetComponent<Weapon>().SetData(weaponData);
@@ -112,6 +112,14 @@ public class EnemyController : MonoBehaviour
 
             if (distance < enemyData.chaseRange && playerVisible && !isChasing)
             {
+                Collider2D[] hitObjects = Physics2D.OverlapCircleAll(transform.position, 5f);
+                foreach (Collider2D obj in hitObjects)
+                {
+                    if (obj.CompareTag("Enemy"))
+                    {
+                        obj.GetComponent<EnemyController>().isChasing = true;
+                    }
+                }
                 isChasing = true;
             }
 
@@ -168,6 +176,14 @@ public class EnemyController : MonoBehaviour
 
             if (distance < enemyData.chaseRange && playerVisible && !isChasing)
             {
+                Collider2D[] hitObjects = Physics2D.OverlapCircleAll(transform.position, 5f);
+                foreach (Collider2D obj in hitObjects)
+                {
+                    if (obj.CompareTag("Enemy"))
+                    {
+                        obj.GetComponent<EnemyController>().isChasing = true;
+                    }
+                }
                 isChasing = true;
             }
 
