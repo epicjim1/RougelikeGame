@@ -1433,7 +1433,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 1
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0.36862746, g: 0.4156863, b: 0.59607846, a: 1}
+  m_Color: {r: 0.34509805, g: 0.57254905, b: 0.7137255, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -3464,6 +3464,13 @@ MonoBehaviour:
   maxEnemiesPerRoom: 3
   corridorEnemyChance: 0.05
   minSpawnDistanceToPlayer: 8
+  chest: {fileID: 3853958264598174242, guid: 6f32b7ab3a223a8428212d5b29cd6f24, type: 3}
+  chestSpawnWeights:
+  - 0.25
+  - 0.25
+  - 0.25
+  - 0.25
+  chestSpawnChancePerRoom: 1
   loadingScreenManager: {fileID: 1644957307}
 --- !u!4 &1636320352
 Transform:

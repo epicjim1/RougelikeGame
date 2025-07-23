@@ -28,6 +28,12 @@ public class DungeonGenerator : MonoBehaviour
     public float corridorEnemyChance = 0.05f; // 5% chance to spawn an enemy on a corridor tile
     public float minSpawnDistanceToPlayer = 5f;
 
+    [Header("Chests")]
+    public GameObject chest;
+    public float[] chestSpawnWeights;
+    [Range(0f, 1f)] // Restrict value in inspector between 0 and 1
+    public float chestSpawnChancePerRoom = 0.3f; // 30% chance for a chest in each valid room
+
     public LoadingScreenManager loadingScreenManager;
 
     private LevelConfiguration currentConfig;
@@ -55,6 +61,10 @@ public class DungeonGenerator : MonoBehaviour
         yield return null;
 
         ConnectRoomsWithPaths();
+        loadingScreenManager.UpdateProgress(0.7f, "Spawning Chests...");
+        yield return null;
+
+        SpawnChestsInRooms();
         loadingScreenManager.UpdateProgress(0.7f, "Scanning Pathfinding Graph...");
         yield return null;
 
@@ -70,7 +80,7 @@ public class DungeonGenerator : MonoBehaviour
         {
             Debug.LogError("Player spawn room was not placed!");
         }
-        SpawnEnemies();
+        //SpawnEnemies();
         ApplyLevelTheme();
         loadingScreenManager.UpdateProgress(1.0f, "Done!");
         yield return new WaitForSeconds(0.5f);
@@ -1123,6 +1133,103 @@ public class DungeonGenerator : MonoBehaviour
         // Fallback in case something goes wrong (shouldn't happen with proper weights)
         Debug.LogWarning("Weighted enemy selection failed to return a prefab. Returning first prefab as fallback.", this);
         return enemyPrefabs[0];
+    }
+
+    /// <summary>
+    /// Spawns chests inside the generated rooms with a chance per room and weighted types.
+    /// </summary>
+    private void SpawnChestsInRooms()
+    {
+        if (chest == null) return; // Already warned in main method
+
+        foreach (var roomInstance in placedRooms)
+        {
+            // Skip the player's starting room, or maybe allow chests but not enemies? Your design choice.
+            if (roomInstance.instance == playerSpawnRoomInstance) continue;
+
+            // Roll for a chance to spawn a chest in this room
+            if (Random.value < chestSpawnChancePerRoom)
+            {
+                Vector2Int spawnGridPos = GetRandomPointInRoom(roomInstance);
+                Vector3 spawnWorldPos = new Vector3(spawnGridPos.x + 0.5f, spawnGridPos.y + 0.5f, 0);
+
+                if (IsTooCloseToPlayer(spawnWorldPos))
+                {
+                    // If too close to player, skip this chest spawn attempt
+                    Debug.Log($"Skipping chest spawn in room {roomInstance.instance.name} due to player proximity.");
+                    continue;
+                }
+
+                // Instantiate the chest prefab
+                GameObject spawnedChestGO = Instantiate(chest, spawnWorldPos, Quaternion.identity, this.transform);
+
+                // Get the ChestController component and set its type
+                Chest chestController = spawnedChestGO.GetComponent<Chest>();
+                if (chestController != null)
+                {
+                    ChestType chosenType = GetWeightedRandomChestType();
+                    chestController.chestType = chosenType;
+                }
+                else
+                {
+                    Debug.LogWarning($"Spawned chest '{spawnedChestGO.name}' in room {roomInstance.instance.name} is missing a ChestController component!", spawnedChestGO);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Selects a random ChestType based on their assigned weights.
+    /// </summary>
+    /// <returns>A ChestType.</returns>
+    private ChestType GetWeightedRandomChestType()
+    {
+        // Ensure weights array is valid and matches enum size
+        if (chestSpawnWeights == null || chestSpawnWeights.Length != (int)ChestType.Mimic + 1)
+        {
+            Debug.LogError("Chest type weights array is invalid. Returning Empty chest type.", this);
+            return ChestType.Empty; // Fallback
+        }
+
+        float totalWeight = 0f;
+        foreach (float weight in chestSpawnWeights)
+        {
+            if (weight > 0)
+            {
+                totalWeight += weight;
+            }
+        }
+
+        if (totalWeight == 0f)
+        {
+            Debug.LogWarning("Total chest type weight is 0. All chests will be Empty.", this);
+            return ChestType.Empty; // If no weights, default to Empty
+        }
+
+        float randomValue = Random.Range(0f, totalWeight);
+        float currentWeightSum = 0f;
+
+        // Iterate through the enum values and their corresponding weights
+        for (int i = 0; i <= (int)ChestType.Mimic; i++)
+        {
+            // Ensure index is within bounds for chestTypeWeights
+            if (i >= chestSpawnWeights.Length) continue;
+
+            if (chestSpawnWeights[i] <= 0)
+            {
+                continue; // Skip types with zero or negative weight
+            }
+
+            currentWeightSum += chestSpawnWeights[i];
+            if (randomValue <= currentWeightSum)
+            {
+                return (ChestType)i; // Cast the index back to ChestType enum
+            }
+        }
+
+        // Fallback in case something unexpected happens (shouldn't if totalWeight > 0)
+        Debug.LogWarning("Weighted chest type selection failed. Returning Empty as fallback.", this);
+        return ChestType.Empty;
     }
 
     /// <summary>

@@ -13,9 +13,13 @@ public class GameManager : MonoBehaviour
 
     [Header("Level Configurations")]
     public LevelConfiguration[] levelConfigurations;
-
     private Dictionary<string, LevelConfiguration> levelConfigDict;
     private LevelConfiguration currentLevelConfig;
+
+    [Header("Player Coins")]
+    public int totalPlayerCoins;
+    public int currentRunPlayerCoins;
+    private const string TOTAL_COINS_PREF_KEY = "TotalPlayerCoins";
 
     private void Awake()
     {
@@ -24,11 +28,40 @@ public class GameManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
             InitializeLevelConfigurations();
+            LoadTotalPlayerCoins();
+            currentRunPlayerCoins = 0;
         }
         else
         {
             Destroy(gameObject);
         }
+    }
+
+    private void LoadTotalPlayerCoins()
+    {
+        totalPlayerCoins = PlayerPrefs.GetInt(TOTAL_COINS_PREF_KEY, 0);
+        Debug.Log($"Loaded Total Player Coins: {totalPlayerCoins}");
+    }
+
+    private void SaveTotalPlayerCoins()
+    {
+        PlayerPrefs.SetInt(TOTAL_COINS_PREF_KEY, totalPlayerCoins);
+        PlayerPrefs.Save();
+        Debug.Log($"Saved Total Player Coins: {totalPlayerCoins}");
+    }
+
+    public void AddCoinsToCurrentRun(int amount)
+    {
+        currentRunPlayerCoins += amount;
+        Debug.Log($"Collected {amount} coins. Current Run Coins: {currentRunPlayerCoins}");
+    }
+
+    public void EndRunAndSaveCoins()
+    {
+        totalPlayerCoins += currentRunPlayerCoins;
+        SaveTotalPlayerCoins();
+        currentRunPlayerCoins = 0; // Reset current run coins for the next run
+        Debug.Log("Run ended. Current run coins added to total and saved.");
     }
 
     private void InitializeLevelConfigurations()

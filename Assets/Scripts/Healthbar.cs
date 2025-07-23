@@ -9,7 +9,7 @@ public class Healthbar : MonoBehaviour
     public GameObject healthbar;
     public GameObject easeHealthbar;
 
-    public float maxHealth = 1f;
+    public float maxHealth = 50f;
     public float health;
 
     private Slider healthslider;
@@ -23,10 +23,7 @@ public class Healthbar : MonoBehaviour
         {
             maxHealth = GameManager.Instance.maxHealth;
         }
-        else
-        {
-            health = maxHealth;
-        }
+        health = maxHealth;
 
         healthslider = healthbar.GetComponent<Slider>();
         easeHealthSlider = easeHealthbar.GetComponent<Slider>();
