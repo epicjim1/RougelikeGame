@@ -503,7 +503,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1647003419680887733}
   - component: {fileID: 1179452761253144686}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: chestCollider
   m_TagString: Untagged
   m_Icon: {fileID: 0}

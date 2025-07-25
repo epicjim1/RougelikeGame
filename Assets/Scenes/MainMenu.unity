@@ -5224,9 +5224,12 @@ MonoBehaviour:
   startingWeapon: 
   modifier: 
   maxHealth: 50
+  stage: 0
   levelConfigurations:
   - {fileID: 11400000, guid: fdbf2e87f857ffc489049018a992814f, type: 2}
   - {fileID: 11400000, guid: 45bc65debe8db9f4ba8fed3d1b385de2, type: 2}
+  totalPlayerCoins: 0
+  currentRunPlayerCoins: 0
 --- !u!4 &1510953535
 Transform:
   m_ObjectHideFlags: 0

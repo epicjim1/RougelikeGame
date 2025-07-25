@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Unity.AI.Navigation;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Tilemaps;
@@ -17,22 +18,26 @@ public class DungeonGenerator : MonoBehaviour
     [Header("Player")]
     public GameObject player;
     private GameObject playerSpawnRoomInstance;
+    private GameObject bossRoomInstance;
+    private GameObject keyRoomInstance;
 
     [Header("Enemy Spawning")]
     public AstarPath astarPath;
-    public GameObject[] enemyPrefabs; // An array of enemy prefabs to spawn
-    public float[] enemySpawnWeights;
-    public int minEnemiesPerRoom = 1;
-    public int maxEnemiesPerRoom = 3;
-    [Range(0, 1)]
-    public float corridorEnemyChance = 0.05f; // 5% chance to spawn an enemy on a corridor tile
-    public float minSpawnDistanceToPlayer = 5f;
+    private float minSpawnDistanceToPlayer = 8f;
+    private int stage;
 
-    [Header("Chests")]
-    public GameObject chest;
-    public float[] chestSpawnWeights;
-    [Range(0f, 1f)] // Restrict value in inspector between 0 and 1
-    public float chestSpawnChancePerRoom = 0.3f; // 30% chance for a chest in each valid room
+    //public GameObject[] enemyPrefabs;
+    //public float[] enemySpawnWeights;
+    //public int minEnemiesPerRoom = 1;
+    //public int maxEnemiesPerRoom = 3;
+    //[Range(0, 1)]
+    //public float corridorEnemyChance = 0.05f;
+
+    //[Header("Chests")]
+    //public GameObject chest;
+    //public float[] chestSpawnWeights;
+    //[Range(0f, 1f)]
+    //public float chestSpawnChancePerRoom = 0.3f;
 
     public LoadingScreenManager loadingScreenManager;
 
@@ -57,11 +62,11 @@ public class DungeonGenerator : MonoBehaviour
         yield return null;
 
         GenerateRooms();
-        loadingScreenManager.UpdateProgress(0.4f, "Connecting Rooms...");
+        loadingScreenManager.UpdateProgress(0.3f, "Connecting Rooms...");
         yield return null;
 
         ConnectRoomsWithPaths();
-        loadingScreenManager.UpdateProgress(0.7f, "Spawning Chests...");
+        loadingScreenManager.UpdateProgress(0.5f, "Spawning Chests...");
         yield return null;
 
         SpawnChestsInRooms();
@@ -69,7 +74,7 @@ public class DungeonGenerator : MonoBehaviour
         yield return null;
 
         yield return StartCoroutine(ScanAstarGraph());
-        loadingScreenManager.UpdateProgress(0.9f, "Placing Player and Enemies...");
+        loadingScreenManager.UpdateProgress(0.9f, "Spawning Player and Enemies...");
         yield return null;
 
         if (playerSpawnRoomInstance != null)
@@ -80,10 +85,11 @@ public class DungeonGenerator : MonoBehaviour
         {
             Debug.LogError("Player spawn room was not placed!");
         }
-        //SpawnEnemies();
+        SpawnEnemies();
         ApplyLevelTheme();
         loadingScreenManager.UpdateProgress(1.0f, "Done!");
         yield return new WaitForSeconds(0.5f);
+
         loadingScreenManager.HideLoadingScreen();
     }
 
@@ -101,6 +107,7 @@ public class DungeonGenerator : MonoBehaviour
             return;
         }
 
+        stage = GameManager.Instance.stage;
         occupiedTiles = new bool[currentConfig.gridSize.x, currentConfig.gridSize.y];
         roomTiles = new bool[currentConfig.gridSize.x, currentConfig.gridSize.y];
     }
@@ -143,11 +150,13 @@ public class DungeonGenerator : MonoBehaviour
         templateCounts[currentConfig.playerSpawnTemplate] = 0;
         templateCounts[currentConfig.playerSpawnTemplate]++;
 
-        //PlaceSpecialRoom(currentConfig.bossRoomTemplate, ref _);     // Boss room
-        //templateCounts[currentConfig.bossRoomTemplate]++;
+        PlaceSpecialRoom(currentConfig.bossRoomTemplate, ref bossRoomInstance);     // Boss room
+        templateCounts[currentConfig.bossRoomTemplate] = 0;
+        templateCounts[currentConfig.bossRoomTemplate]++;
 
-        //PlaceSpecialRoom(currentConfig.exitRoomTemplate, ref _);     // Exit room
-        //templateCounts[currentConfig.exitRoomTemplate]++;
+        PlaceSpecialRoom(currentConfig.keyRoomTemplate, ref keyRoomInstance);     // Exit room
+        templateCounts[currentConfig.keyRoomTemplate] = 0;
+        templateCounts[currentConfig.keyRoomTemplate]++;
 
         while (placedRooms.Count < currentConfig.roomCount && attempts < maxAttempts)
         {
@@ -1021,12 +1030,6 @@ public class DungeonGenerator : MonoBehaviour
     /// </summary>
     void SpawnEnemies()
     {
-        if (enemyPrefabs == null || enemyPrefabs.Length == 0)
-        {
-            Debug.LogWarning("No enemy prefabs assigned. Skipping enemy spawning.");
-            return;
-        }
-
         SpawnEnemiesInRooms();
         SpawnEnemiesInCorridors();
     }
@@ -1039,10 +1042,10 @@ public class DungeonGenerator : MonoBehaviour
         foreach (var roomInstance in placedRooms)
         {
             // Skip the player's starting room
-            if (roomInstance.instance == playerSpawnRoomInstance) continue;
+            if (roomInstance.instance == playerSpawnRoomInstance || roomInstance.template.roomIsSpiked) continue;
 
             // Determine how many enemies to spawn in this room
-            int enemyCount = Random.Range(minEnemiesPerRoom, maxEnemiesPerRoom + 1);
+            int enemyCount = Random.Range(currentConfig.minEnemiesPerRoom, currentConfig.maxEnemiesPerRoom + 1);
 
             for (int i = 0; i < enemyCount; i++)
             {
@@ -1068,7 +1071,7 @@ public class DungeonGenerator : MonoBehaviour
             if (roomTiles[tilePos.x, tilePos.y]) continue;
 
             // Use a random chance to decide whether to spawn an enemy here
-            if (Random.value < corridorEnemyChance)
+            if (Random.value < currentConfig.corridorEnemyChance)
             {
                 Vector3 spawnWorldPos = new Vector3(tilePos.x + 0.5f, tilePos.y + 0.5f, 0);
 
@@ -1092,14 +1095,17 @@ public class DungeonGenerator : MonoBehaviour
     /// <returns>A GameObject representing the chosen enemy prefab, or null if no enemy can be selected.</returns>
     private GameObject GetWeightedRandomEnemyPrefab()
     {
-        if (enemyPrefabs == null || enemyPrefabs.Length == 0 || enemySpawnWeights == null || enemySpawnWeights.Length != enemyPrefabs.Length)
+        if (currentConfig.enemySpawnSet[stage].enemyPrefabs == null ||
+            currentConfig.enemySpawnSet[stage].enemyPrefabs.Length == 0 ||
+            currentConfig.enemySpawnSet[stage].enemySpawnWeights == null ||
+            currentConfig.enemySpawnSet[stage].enemySpawnWeights.Length != currentConfig.enemySpawnSet[stage].enemyPrefabs.Length)
         {
             Debug.LogError("Cannot select weighted enemy prefab: prefabs or weights array is invalid.");
             return null;
         }
 
         float totalWeight = 0f;
-        foreach (float weight in enemySpawnWeights)
+        foreach (float weight in currentConfig.enemySpawnSet[stage].enemySpawnWeights)
         {
             if (weight > 0) // Only sum positive weights
             {
@@ -1116,23 +1122,23 @@ public class DungeonGenerator : MonoBehaviour
         float randomValue = Random.Range(0f, totalWeight);
         float currentWeightSum = 0f;
 
-        for (int i = 0; i < enemyPrefabs.Length; i++)
+        for (int i = 0; i < currentConfig.enemySpawnSet[stage].enemyPrefabs.Length; i++)
         {
-            if (enemySpawnWeights[i] <= 0) // Skip enemies with zero or negative weight
+            if (currentConfig.enemySpawnSet[stage].enemySpawnWeights[i] <= 0) // Skip enemies with zero or negative weight
             {
                 continue;
             }
 
-            currentWeightSum += enemySpawnWeights[i];
+            currentWeightSum += currentConfig.enemySpawnSet[stage].enemySpawnWeights[i];
             if (randomValue <= currentWeightSum)
             {
-                return enemyPrefabs[i];
+                return currentConfig.enemySpawnSet[stage].enemyPrefabs[i];
             }
         }
 
         // Fallback in case something goes wrong (shouldn't happen with proper weights)
         Debug.LogWarning("Weighted enemy selection failed to return a prefab. Returning first prefab as fallback.", this);
-        return enemyPrefabs[0];
+        return currentConfig.enemySpawnSet[stage].enemyPrefabs[0];
     }
 
     /// <summary>
@@ -1140,15 +1146,13 @@ public class DungeonGenerator : MonoBehaviour
     /// </summary>
     private void SpawnChestsInRooms()
     {
-        if (chest == null) return; // Already warned in main method
-
         foreach (var roomInstance in placedRooms)
         {
             // Skip the player's starting room, or maybe allow chests but not enemies? Your design choice.
-            if (roomInstance.instance == playerSpawnRoomInstance) continue;
+            if (roomInstance.instance == playerSpawnRoomInstance || roomInstance.template.roomIsSpiked) continue;
 
             // Roll for a chance to spawn a chest in this room
-            if (Random.value < chestSpawnChancePerRoom)
+            if (Random.value < currentConfig.chestSpawnChancePerRoom)
             {
                 Vector2Int spawnGridPos = GetRandomPointInRoom(roomInstance);
                 Vector3 spawnWorldPos = new Vector3(spawnGridPos.x + 0.5f, spawnGridPos.y + 0.5f, 0);
@@ -1161,7 +1165,7 @@ public class DungeonGenerator : MonoBehaviour
                 }
 
                 // Instantiate the chest prefab
-                GameObject spawnedChestGO = Instantiate(chest, spawnWorldPos, Quaternion.identity, this.transform);
+                GameObject spawnedChestGO = Instantiate(currentConfig.chest, spawnWorldPos, Quaternion.identity, this.transform);
 
                 // Get the ChestController component and set its type
                 Chest chestController = spawnedChestGO.GetComponent<Chest>();
@@ -1185,14 +1189,14 @@ public class DungeonGenerator : MonoBehaviour
     private ChestType GetWeightedRandomChestType()
     {
         // Ensure weights array is valid and matches enum size
-        if (chestSpawnWeights == null || chestSpawnWeights.Length != (int)ChestType.Mimic + 1)
+        if (currentConfig.chestSpawnWeights == null || currentConfig.chestSpawnWeights.Length != (int)ChestType.Mimic + 1)
         {
             Debug.LogError("Chest type weights array is invalid. Returning Empty chest type.", this);
             return ChestType.Empty; // Fallback
         }
 
         float totalWeight = 0f;
-        foreach (float weight in chestSpawnWeights)
+        foreach (float weight in currentConfig.chestSpawnWeights)
         {
             if (weight > 0)
             {
@@ -1213,14 +1217,14 @@ public class DungeonGenerator : MonoBehaviour
         for (int i = 0; i <= (int)ChestType.Mimic; i++)
         {
             // Ensure index is within bounds for chestTypeWeights
-            if (i >= chestSpawnWeights.Length) continue;
+            if (i >= currentConfig.chestSpawnWeights.Length) continue;
 
-            if (chestSpawnWeights[i] <= 0)
+            if (currentConfig.chestSpawnWeights[i] <= 0)
             {
                 continue; // Skip types with zero or negative weight
             }
 
-            currentWeightSum += chestSpawnWeights[i];
+            currentWeightSum += currentConfig.chestSpawnWeights[i];
             if (randomValue <= currentWeightSum)
             {
                 return (ChestType)i; // Cast the index back to ChestType enum

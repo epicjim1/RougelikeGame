@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     public string startingWeapon;
     public string modifier;
     public float maxHealth = 50f;
+    public int stage = 0;
 
     [Header("Level Configurations")]
     public LevelConfiguration[] levelConfigurations;
@@ -29,7 +30,8 @@ public class GameManager : MonoBehaviour
             DontDestroyOnLoad(gameObject);
             InitializeLevelConfigurations();
             LoadTotalPlayerCoins();
-            currentRunPlayerCoins = 0;
+            if (stage == 0)
+                currentRunPlayerCoins = 0;
         }
         else
         {
@@ -133,8 +135,8 @@ public class GameManager : MonoBehaviour
         return currentLevelConfig?.bossRoomTemplate;
     }
 
-    public RoomTemplate GetCurrentExitRoomTemplate()
+    public RoomTemplate GetCurrentKeyRoomTemplate()
     {
-        return currentLevelConfig?.exitRoomTemplate;
+        return currentLevelConfig?.keyRoomTemplate;
     }
 }

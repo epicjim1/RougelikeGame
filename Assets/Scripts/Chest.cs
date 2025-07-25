@@ -29,12 +29,12 @@ public class Chest : MonoBehaviour
         anim = GetComponent<Animator>();
         promptObject.SetActive(false);
 
-        if (chestType == ChestType.Gun || chestType == ChestType.Mimic)
+        /*if (chestType == ChestType.Gun || chestType == ChestType.Mimic)
         {
             player = GameObject.FindWithTag("Player");
             weaponHandler = player.GetComponent<WeaponHandler>();
             playerMovement = player.GetComponent<PlayerMovement>();
-        }
+        }*/
     }
 
     void Update()
@@ -56,7 +56,9 @@ public class Chest : MonoBehaviour
             else if (chestType == ChestType.Gun)
             {
                 anim.SetTrigger("chestOpenEmpty");
-                GameObject pickup = Instantiate(weaponPickup, transform.position + new Vector3(1.5f, 0, 0), Quaternion.identity);
+                Vector2 spawnOffset = (player.transform.position - transform.position).normalized * 1.5f; // 1.5 units away
+                Vector3 spawnPosition = transform.position + (Vector3)spawnOffset;
+                GameObject pickup = Instantiate(weaponPickup, spawnPosition, Quaternion.identity);
                 pickup.GetComponent<WeaponPickup>().weaponToUnlock = weaponHandler.allWeapons[Random.Range(0, weaponHandler.allWeapons.Count)];
             }
             else if (chestType == ChestType.Mimic)
@@ -80,8 +82,13 @@ public class Chest : MonoBehaviour
         if (!isOpened && other.CompareTag("Player"))
         {
             playerInRange = true;
-            //player = other.gameObject;
+            player = other.gameObject;
 
+            if (weaponHandler == null && playerMovement == null && (chestType == ChestType.Gun || chestType == ChestType.Mimic))
+            {
+                weaponHandler = player.GetComponent<WeaponHandler>();
+                playerMovement = player.GetComponent<PlayerMovement>();
+            }
             promptObject.SetActive(true);
         }
         else if (chestType == ChestType.Mimic && isOpened && other.CompareTag("Player"))
@@ -95,7 +102,7 @@ public class Chest : MonoBehaviour
         if (!isOpened && other.CompareTag("Player"))
         {
             playerInRange = false;
-            //player = null;
+            player = null;
 
             promptObject.SetActive(false);
         }

@@ -41,6 +41,7 @@ public class EnemyController : MonoBehaviour
     private Animator animator;
     private SpriteRenderer spriteRenderer;
     private Rigidbody2D rb;
+    public RoomController roomController;
 
     void Start()
     {
@@ -323,6 +324,10 @@ public class EnemyController : MonoBehaviour
         GetComponent<BoxCollider2D>().enabled = false;
         rb.simulated = false;
         this.enabled = false;
+        if (roomController != null)
+        {
+            roomController.OnEnemyDefeated(this);
+        }
         Destroy(gameObject, 2f);
     }
 
