@@ -22,6 +22,9 @@ public class GameManager : MonoBehaviour
     public int currentRunPlayerCoins;
     private const string TOTAL_COINS_PREF_KEY = "TotalPlayerCoins";
 
+    [HideInInspector] public bool GameIsPaused = false;
+    [HideInInspector] public bool GameIsLost = false;
+
     private void Awake()
     {
         if (Instance == null)
@@ -108,7 +111,19 @@ public class GameManager : MonoBehaviour
         return currentLevelConfig;
     }
 
-    public LevelConfiguration GetLevelConfig(string levelName)
+    public void ResetGame()
+    {
+        GameIsLost = false;
+        GameIsPaused = false;
+        stage = 0;
+        currentRunPlayerCoins = 0;
+        maxHealth = 50f;
+        level = "";
+        startingWeapon = "";
+        modifier = "";
+    }
+
+    /*public LevelConfiguration GetLevelConfig(string levelName)
     {
         if (levelConfigDict.ContainsKey(levelName))
         {
@@ -119,7 +134,6 @@ public class GameManager : MonoBehaviour
         return null;
     }
 
-    // Helper methods for easy access to current level data
     public RoomTemplate[] GetCurrentRoomTemplates()
     {
         return currentLevelConfig?.roomTemplates ?? new RoomTemplate[0];
@@ -138,5 +152,5 @@ public class GameManager : MonoBehaviour
     public RoomTemplate GetCurrentKeyRoomTemplate()
     {
         return currentLevelConfig?.keyRoomTemplate;
-    }
+    }*/
 }

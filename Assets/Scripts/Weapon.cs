@@ -75,20 +75,48 @@ public class Weapon : MonoBehaviour
                 muzzleFlash.Emit(30);
 
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            Quaternion rot = Quaternion.Euler(0, 0, angle);
 
-            GameObject projectile = Instantiate(
-                weaponData.projectilePrefab,
-                firePoint.position,
-                rot
-            );
-
-            Projectile projScript = projectile.GetComponent<Projectile>();
-            if (projScript != null)
+            if (weaponData.fireType == GunFireType.Normal)
             {
-                projScript.SetPlayersBullet(isPlayer);
-                projScript.SetDirection(direction);
-                projScript.SetDamage(weaponData.damage);
+                Quaternion rot = Quaternion.Euler(0, 0, angle);
+
+                GameObject projectile = Instantiate(
+                    weaponData.projectilePrefab,
+                    firePoint.position,
+                    rot
+                );
+
+                Projectile projScript = projectile.GetComponent<Projectile>();
+                if (projScript != null)
+                {
+                    projScript.SetPlayersBullet(isPlayer);
+                    projScript.SetDirection(direction);
+                    projScript.SetDamage(weaponData.damage);
+                }
+            }
+            else if (weaponData.fireType == GunFireType.Multiple)
+            {
+                int pellets = 8; // You can expose this in weaponData if needed
+                float spreadAngle = 5f; // total spread in degrees
+
+                for (int i = 0; i < pellets; i++)
+                {
+                    // Evenly distribute pellets within spread angle
+                    float offset = Mathf.Lerp(-spreadAngle / 2f, spreadAngle / 2f, (float)i / (pellets - 1));
+                    float finalAngle = angle + offset;
+
+                    Quaternion rot = Quaternion.Euler(0, 0, finalAngle);
+                    Vector2 spreadDir = new Vector2(Mathf.Cos(finalAngle * Mathf.Deg2Rad), Mathf.Sin(finalAngle * Mathf.Deg2Rad)).normalized;
+
+                    GameObject pellet = Instantiate(weaponData.projectilePrefab, firePoint.position, rot);
+                    Projectile projScript = pellet.GetComponent<Projectile>();
+                    if (projScript != null)
+                    {
+                        projScript.SetPlayersBullet(isPlayer);
+                        projScript.SetDirection(spreadDir);
+                        projScript.SetDamage(weaponData.damage);
+                    }
+                }
             }
         }
         else

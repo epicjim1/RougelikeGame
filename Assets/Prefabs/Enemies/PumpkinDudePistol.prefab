@@ -209,6 +209,8 @@ MonoBehaviour:
   aimTransform: {fileID: 3629141883717451390}
   separationRadius: 1
   separationForce: 5
+  isChasing: 0
+  roomController: {fileID: 0}
 --- !u!114 &4466743673770723083
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -426,6 +428,18 @@ PrefabInstance:
     - target: {fileID: 1274304843120217655, guid: acfdedab0944ef04cbc950c0bb3f20c3, type: 3}
       propertyPath: isPlayer
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1685088981979252012, guid: acfdedab0944ef04cbc950c0bb3f20c3, type: 3}
+      propertyPath: m_Color.b
+      value: 0.14901961
+      objectReference: {fileID: 0}
+    - target: {fileID: 1685088981979252012, guid: acfdedab0944ef04cbc950c0bb3f20c3, type: 3}
+      propertyPath: m_Color.g
+      value: 0.38431376
+      objectReference: {fileID: 0}
+    - target: {fileID: 1685088981979252012, guid: acfdedab0944ef04cbc950c0bb3f20c3, type: 3}
+      propertyPath: m_Color.r
+      value: 0.69803923
       objectReference: {fileID: 0}
     - target: {fileID: 2533337015735072120, guid: acfdedab0944ef04cbc950c0bb3f20c3, type: 3}
       propertyPath: m_LocalPosition.x

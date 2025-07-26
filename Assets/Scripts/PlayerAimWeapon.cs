@@ -17,7 +17,10 @@ public class PlayerAimWeapon : MonoBehaviour
 
     void Update()
     {
-        Aiming();
+        if (!GameManager.Instance.GameIsPaused && !GameManager.Instance.GameIsLost)
+        {
+            Aiming();
+        }
         //Shooting();
     }
 

@@ -13,6 +13,7 @@ public class Projectile : MonoBehaviour
     public GameObject hitEffect;
 
     public BulletType bulletType = BulletType.Normal;
+    public bool isSpeedRandom = false;
 
     private Vector3 direction;
     private int damage;
@@ -42,7 +43,14 @@ public class Projectile : MonoBehaviour
     private void Start()
     {
         //rb.linearVelocity = direction * speed;
-        rb.AddForce(direction * speed, ForceMode2D.Impulse);
+        if (isSpeedRandom)
+        {
+            rb.AddForce(direction * Random.Range(speed, speed * 2), ForceMode2D.Impulse);
+        }
+        else
+        {
+            rb.AddForce(direction * speed, ForceMode2D.Impulse);
+        }
         BulletEnd(5f);
     }
 

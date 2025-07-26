@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
+using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -18,17 +20,35 @@ public class PlayerMovement : MonoBehaviour
     private float lastDashTime = -Mathf.Infinity;
     private Color originalColor;
 
+    public GameObject pauseMenuUI;
+    public GameObject loseMenuUI;
+
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         originalColor = spriteRenderer.color;
+
+        pauseMenuUI.SetActive(false);
+        loseMenuUI.SetActive(false);
     }
 
     void Update()
     {
-        if (!isDashing)
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (GameManager.Instance.GameIsPaused)
+            {
+                Resume();
+            }
+            else
+            {
+                Pause();
+            }
+        }
+
+        if (!isDashing && !GameManager.Instance.GameIsLost && !GameManager.Instance.GameIsPaused)
         {
             movement.x = Input.GetAxisRaw("Horizontal");
             movement.y = Input.GetAxisRaw("Vertical");
@@ -44,7 +64,7 @@ public class PlayerMovement : MonoBehaviour
                 spriteRenderer.flipX = false;
         }
 
-        if (Input.GetKeyDown(KeyCode.Space) && Time.time >= lastDashTime + dashCooldown)
+        if (canMove && Input.GetKeyDown(KeyCode.Space) && Time.time >= lastDashTime + dashCooldown)
         {
             StartCoroutine(Dash());
         }
@@ -132,5 +152,48 @@ public class PlayerMovement : MonoBehaviour
     public void PlayerDie ()
     {
         Debug.Log("Player died");
+        GameManager.Instance.GameIsLost = true;
+        loseMenuUI.SetActive(true);
+        StopAllCoroutines();
+        canMove = false;
+        //canvasAnim.SetTrigger("LoseOn");
     }
+
+    public void Resume()
+    {
+        GameManager.Instance.GameIsPaused = false;
+        Time.timeScale = 1f;
+        pauseMenuUI.SetActive(false);
+        //canvasAnim.SetTrigger("PauseOff");
+    }
+
+    public void Pause()
+    {
+        GameManager.Instance.GameIsPaused = true;
+        Time.timeScale = 0f;
+        pauseMenuUI.SetActive(true);
+        //canvasAnim.SetTrigger("PauseOn");
+    }
+
+    public void ReturnHome()
+    {
+        Time.timeScale = 1f;
+        canMove = true;
+        GameManager.Instance.ResetGame();
+        SceneManager.LoadScene(0);
+    }
+
+    /*private System.Collections.IEnumerator Blur()
+    {
+        startingFocalLength = Mathf.Lerp(startingFocalLength, 13f, Time.deltaTime * 4f);
+        yield return new WaitForSeconds(.5f);
+        depthOfField.focalLength.value = startingFocalLength;
+    }
+
+    private System.Collections.IEnumerator UnBlur()
+    {
+        startingFocalLength = Mathf.Lerp(startingFocalLength, 1f, Time.deltaTime * 4f);
+        yield return new WaitForSeconds(.5f);
+        depthOfField.focalLength.value = startingFocalLength;
+    }*/
 }

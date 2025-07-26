@@ -78,7 +78,7 @@ public class WeaponHandler : MonoBehaviour
 
     void HandleShooting()
     {
-        if (Input.GetMouseButton(0))
+        if (!GameManager.Instance.GameIsPaused && !GameManager.Instance.GameIsLost && Input.GetMouseButton(0))
         {
             Vector3 dir = (GetMouseWorldPosition() - weaponHolder.position).normalized;
             currentWeapon?.Shoot(dir);
@@ -88,7 +88,7 @@ public class WeaponHandler : MonoBehaviour
 
     void HandleWeaponSwap()
     {
-        if (Input.GetKeyDown(KeyCode.Q) && unlockedWeapons.Count > 1)
+        if (!GameManager.Instance.GameIsPaused && !GameManager.Instance.GameIsLost && Input.GetKeyDown(KeyCode.Q) && unlockedWeapons.Count > 1)
         {
             currentWeaponIndex = (currentWeaponIndex + 1) % unlockedWeapons.Count;
             EquipWeapon(currentWeaponIndex);
