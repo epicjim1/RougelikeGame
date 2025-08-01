@@ -65,13 +65,17 @@ MonoBehaviour:
     - 0.75
     - 1
     - 0.2
-  - enemyPrefabs: []
-    enemySpawnWeights: []
-  - enemyPrefabs: []
-    enemySpawnWeights: []
+  - enemyPrefabs:
+    - {fileID: 638481146736398696, guid: 32bc94bc76817ba489b631d6c7cde927, type: 3}
+    enemySpawnWeights:
+    - 1
+  - enemyPrefabs:
+    - {fileID: 1322318976373140629, guid: 8cce7143727f35946949f12cf409e535, type: 3}
+    enemySpawnWeights:
+    - 1
   minEnemiesPerRoom: 1
   maxEnemiesPerRoom: 3
-  corridorEnemyChance: 0.05
+  corridorEnemyChance: 0
   chest: {fileID: 3853958264598174242, guid: 6f32b7ab3a223a8428212d5b29cd6f24, type: 3}
   chestSpawnWeights:
   - 0.6
@@ -80,7 +84,7 @@ MonoBehaviour:
   - 0.15
   chestSpawnChancePerRoom: 1
   roomCount: 30
-  gridSize: {x: 120, y: 120}
+  gridSize: {x: 220, y: 220}
   roomPadding: 5
   margin: 5
   ambientLightColor: {r: 0.13725491, g: 0.13725491, b: 0.13725491, a: 1}

@@ -10,11 +10,14 @@ public class DoorController : MonoBehaviour
     public Sprite openDoor;
     [HideInInspector] public Sprite closedDoor;
     [HideInInspector] public SpriteRenderer myRenderer;
+    [HideInInspector] public BoxCollider2D myCollider;
 
     private void Start()
     {
         myRenderer = this.GetComponent<SpriteRenderer>();
+        myCollider = this.GetComponent<BoxCollider2D>();
         closedDoor = myRenderer.sprite;
+        myCollider.enabled = true;
     }
 
     private void OnEnable()
@@ -42,6 +45,7 @@ public class DoorController : MonoBehaviour
 
         isUnlocked = true;
         myRenderer.sprite = openDoor;
+        myCollider.enabled = false;
         Debug.Log($"Door with ID {doorID} unlocked!");
     }
 }

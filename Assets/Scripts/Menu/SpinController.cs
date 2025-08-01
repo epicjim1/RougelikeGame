@@ -127,6 +127,7 @@ public class SpinController : MonoBehaviour
         cb.colorMultiplier = 1f;
         spinBtn.colors = cb;
         spinBtn.interactable = true;
+        Random.InitState(System.DateTime.Now.Millisecond);
     }
 
     //Temp

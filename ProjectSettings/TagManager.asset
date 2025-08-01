@@ -7,6 +7,8 @@ TagManager:
   - Walls
   - Enemy
   - floor
+  - Boss
+  - bossBar
   layers:
   - Default
   - TransparentFX
@@ -20,8 +22,8 @@ TagManager:
   - Floor
   - FeetCollider
   - MinimapOnly
-  - 
-  - 
+  - Boss
+  - Spikes
   - 
   - 
   - 

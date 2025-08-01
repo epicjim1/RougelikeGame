@@ -326,7 +326,7 @@ public class EnemyController : MonoBehaviour
         this.enabled = false;
         if (roomController != null)
         {
-            roomController.OnEnemyDefeated(this);
+            roomController.OnEnemyDefeated(this.gameObject);
         }
         Destroy(gameObject, 2f);
     }

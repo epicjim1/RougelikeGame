@@ -1,12 +1,21 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq; // Needed for .Count
+using System.Linq;
+//using System.Diagnostics; // Needed for .Count
 
 public enum RoomType
 {
     SpawnEnemiesInside,
     BossRoom,
     NeedKeyToEnter
+}
+
+public enum BossType
+{
+    ElementalGolem,
+    FlyingDemon,
+    Necromancer,
+    Computer,
 }
 
 public class RoomController : MonoBehaviour
@@ -19,7 +28,19 @@ public class RoomController : MonoBehaviour
     public DoorController doorController;
 
     private bool roomIsActive = false;
-    private List<EnemyController> enemiesInRoom = new();
+    private List<GameObject> enemiesInRoom = new();
+
+    public BossType bossType = BossType.ElementalGolem;
+    public GameObject[] bosses;
+    private GameObject bossInstance;
+
+    private void Start()
+    {
+        if (roomType == RoomType.BossRoom)
+        {
+            SpawnBoss();
+        }
+    }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -36,15 +57,21 @@ public class RoomController : MonoBehaviour
                     GameObject enemy = Instantiate(enemyPrefab, point.position, Quaternion.identity);
                     EnemyController controller = enemy.GetComponent<EnemyController>();
                     controller.roomController = this;
-                    enemiesInRoom.Add(controller);
-
-                    Debug.Log(enemiesInRoom);
+                    enemiesInRoom.Add(enemy);
                 }
             }
             else if (roomType == RoomType.BossRoom)
             {
                 doorController.myRenderer.sprite = doorController.closedDoor;
-                SpawnBoss();
+                doorController.myCollider.enabled = true;
+                if (bossType == BossType.ElementalGolem)
+                {
+                    StartCoroutine(bossInstance.GetComponent<GolemBoss>().StartBossFight());
+                }
+                else if (bossType == BossType.FlyingDemon)
+                {
+                    //StartCoroutine(bossInstance.GetComponent<FlyingDemonBoss>().StartBossFight());
+                }
             }
         }
     }
@@ -54,7 +81,7 @@ public class RoomController : MonoBehaviour
         
     }
 
-    public void OnEnemyDefeated(EnemyController defeatedEnemy)
+    public void OnEnemyDefeated(GameObject defeatedEnemy)
     {
         if (enemiesInRoom.Contains(defeatedEnemy))
         {
@@ -71,6 +98,18 @@ public class RoomController : MonoBehaviour
 
     private void SpawnBoss()
     {
-        Debug.Log("Spawn boss");
+        bossInstance = Instantiate(bosses[Random.Range(0, bosses.Length)], new Vector3((spawnPoints[3].position.x + spawnPoints[2].position.x) / 2, spawnPoints[3].position.y, 0), Quaternion.identity);
+        enemiesInRoom.Add(bossInstance);
+
+        if (bossType == BossType.ElementalGolem)
+        {
+            GolemBoss gb = bossInstance.GetComponent<GolemBoss>();
+            gb.roomController = this;
+            gb.corners = spawnPoints;
+        }
+        else if (bossType == BossType.FlyingDemon)
+        {
+
+        }
     }
 }

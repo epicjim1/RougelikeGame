@@ -59,11 +59,12 @@ public class Projectile : MonoBehaviour
         if (playersBullet && collision.tag == "Enemy")
         {
             collision.GetComponent<EnemyController>().TakeDamage(damage);
-            if (bulletType == BulletType.Explosive)
-            {
-                Explode();
-            }
-            BulletEnd();
+            Hit();
+        }
+        else if (playersBullet && collision.tag == "Boss")
+        {
+            collision.GetComponent<GolemBoss>().TakeDamage(damage);
+            Hit();
         }
         else if (!playersBullet && collision.tag == "Enemy")
         {
@@ -73,20 +74,30 @@ public class Projectile : MonoBehaviour
         else if (!playersBullet && collision.tag == "Player" && !collision.GetComponent<PlayerMovement>().getIsDashing())
         {
             collision.GetComponent<PlayerMovement>().takeDamage(damage);
-            if (bulletType == BulletType.Explosive)
-            {
-                Explode();
-            }
-            BulletEnd();
+            Hit();
         }
         else if (collision.tag == "Walls")
         {
-            if (bulletType == BulletType.Explosive)
-            {
-                Explode();
-            }
-            BulletEnd();
+            Hit();
         }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (!playersBullet && collision.tag == "Player" && !collision.GetComponent<PlayerMovement>().getIsDashing())
+        {
+            collision.GetComponent<PlayerMovement>().takeDamage(damage);
+            Hit();
+        }
+    }
+
+    private void Hit()
+    {
+        if (bulletType == BulletType.Explosive)
+        {
+            Explode();
+        }
+        BulletEnd();
     }
 
     private void Explode()

@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
@@ -22,6 +23,8 @@ public class PlayerMovement : MonoBehaviour
 
     public GameObject pauseMenuUI;
     public GameObject loseMenuUI;
+    public GameObject winStageMenuUI;
+    public GameObject winGameMenuUI;
 
     private void Start()
     {
@@ -32,6 +35,8 @@ public class PlayerMovement : MonoBehaviour
 
         pauseMenuUI.SetActive(false);
         loseMenuUI.SetActive(false);
+        winStageMenuUI.SetActive(false);
+        winGameMenuUI.SetActive(false);
     }
 
     void Update()
@@ -149,13 +154,34 @@ public class PlayerMovement : MonoBehaviour
         return isDashing;
     }
 
+    public void PlayerWinStage()
+    {
+        if (GameManager.Instance.stage == 2)
+        {
+            winGameMenuUI.SetActive(true);
+        }
+        else
+        {
+            winStageMenuUI.GetComponentInChildren<TMP_Text>().text = "You Beat Stage: " + (GameManager.Instance.stage + 1);
+            winStageMenuUI.SetActive(true);
+        }
+        StopAllCoroutines();
+        canMove = false;
+        rb.simulated = false;
+    }
+
+    public void ContinueToNextStage()
+    {
+        GameManager.Instance.NextStage(healthbar.maxHealth);
+    }
+
     public void PlayerDie ()
     {
-        Debug.Log("Player died");
         GameManager.Instance.GameIsLost = true;
         loseMenuUI.SetActive(true);
         StopAllCoroutines();
         canMove = false;
+        rb.simulated = false;
         //canvasAnim.SetTrigger("LoseOn");
     }
 
@@ -179,6 +205,15 @@ public class PlayerMovement : MonoBehaviour
     {
         Time.timeScale = 1f;
         canMove = true;
+        GameManager.Instance.ResetGame();
+        SceneManager.LoadScene(0);
+    }
+
+    public void ReturnHomeWithCoins()
+    {
+        Time.timeScale = 1f;
+        canMove = true;
+        GameManager.Instance.EndRunAndSaveCoins();
         GameManager.Instance.ResetGame();
         SceneManager.LoadScene(0);
     }

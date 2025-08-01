@@ -6,11 +6,17 @@ using UnityEngine.UI;
 
 public class Healthbar : MonoBehaviour
 {
+    public bool isPlayerBar = true;
+
     public GameObject healthbar;
     public GameObject easeHealthbar;
 
     public float maxHealth = 50f;
     public float health;
+
+    public Image healthbarImage;
+    public Image easeHealthbarImage;
+    public Image bgHealthbarImage;
 
     private Slider healthslider;
     private Slider easeHealthSlider;
@@ -19,7 +25,12 @@ public class Healthbar : MonoBehaviour
     // start is called before the first frame update
     void Start()
     {
-        if (GameManager.Instance != null)
+        Starting();
+    }
+
+    public void Starting()
+    {
+        if (isPlayerBar)
         {
             maxHealth = GameManager.Instance.maxHealth;
         }
@@ -30,8 +41,11 @@ public class Healthbar : MonoBehaviour
 
         healthslider.maxValue = maxHealth;
         easeHealthSlider.maxValue = maxHealth;
-        healthbar.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, maxHealth * 2);
-        easeHealthbar.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, maxHealth * 2);
+        if (isPlayerBar)
+        {
+            healthbar.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, maxHealth * 2);
+            easeHealthbar.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, maxHealth * 2);
+        }
     }
 
     // Update is called once per frame
@@ -46,11 +60,11 @@ public class Healthbar : MonoBehaviour
         {
             takeDamage(10f);
         }*/
-        if (Input.GetKeyDown(KeyCode.F))
+        if (isPlayerBar && Input.GetKeyDown(KeyCode.F))
         {
             heal(maxHealth);
         }
-        if (Input.GetKeyDown(KeyCode.C))
+        if (isPlayerBar && Input.GetKeyDown(KeyCode.C))
         {
             permHealthIncrease(25f);
         }

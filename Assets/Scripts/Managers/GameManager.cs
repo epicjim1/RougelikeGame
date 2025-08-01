@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -40,6 +41,14 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
+
+    public void NextStage(float currentMaxHealth)
+    {
+        stage += 1;
+        maxHealth = currentMaxHealth;
+        currentLevelConfig.gridSize = new Vector2Int(currentLevelConfig.gridSize.x + 50, currentLevelConfig.gridSize.y + 50);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     private void LoadTotalPlayerCoins()

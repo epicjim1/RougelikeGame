@@ -59,7 +59,10 @@ public class Weapon : MonoBehaviour
                 {
                     StartCoroutine(Reload());
                 }
-                Debug.Log("Out of ammo. Press R to reload.");
+                else
+                {
+                    StartCoroutine(Reload());
+                }
                 return;
             }
 
@@ -149,8 +152,6 @@ public class Weapon : MonoBehaviour
     {
         isReloading = true;
         this.gameObject.GetComponent<Animator>().enabled = false;
-        //transform.localRotation = Quaternion.Euler(0, 0, -45f);
-        Debug.Log("Reloading...");
         float rotationDuration = 0.1f;
         float timer = 0f;
         while (timer < rotationDuration)
@@ -176,8 +177,6 @@ public class Weapon : MonoBehaviour
         currentAmmo = weaponData.maxAmmo;
         this.gameObject.GetComponent<Animator>().enabled = true;
         isReloading = false;
-        //transform.localRotation = Quaternion.Euler(0, 0, 0); ;
-        Debug.Log("Reload complete.");
     }
 
     private void Laser()

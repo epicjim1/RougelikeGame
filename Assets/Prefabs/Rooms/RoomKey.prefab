@@ -2893,6 +2893,7 @@ MonoBehaviour:
   - {fileID: 3141798927322897862, guid: 68d1284b8ec41584d96097ff51028436, type: 3}
   - {fileID: 1322318976373140629, guid: 8cce7143727f35946949f12cf409e535, type: 3}
   doorController: {fileID: 0}
+  boss: {fileID: 0}
 --- !u!1 &6620085344468490224
 GameObject:
   m_ObjectHideFlags: 0
@@ -2905,7 +2906,7 @@ GameObject:
   - component: {fileID: 5313837850491894351}
   - component: {fileID: 5868403895039026155}
   - component: {fileID: 2812629416486857569}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: TilemapSpike
   m_TagString: Untagged
   m_Icon: {fileID: 0}
