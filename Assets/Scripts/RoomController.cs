@@ -16,6 +16,7 @@ public enum BossType
     FlyingDemon,
     Necromancer,
     Computer,
+    Angel
 }
 
 public class RoomController : MonoBehaviour
@@ -30,12 +31,13 @@ public class RoomController : MonoBehaviour
     private bool roomIsActive = false;
     private List<GameObject> enemiesInRoom = new();
 
-    public BossType bossType = BossType.ElementalGolem;
+    public BossType bossType;
     public GameObject[] bosses;
     private GameObject bossInstance;
 
     private void Start()
     {
+        bossType = GameManager.Instance.bossType;
         if (roomType == RoomType.BossRoom)
         {
             SpawnBoss();
@@ -98,7 +100,29 @@ public class RoomController : MonoBehaviour
 
     private void SpawnBoss()
     {
-        bossInstance = Instantiate(bosses[Random.Range(0, bosses.Length)], new Vector3((spawnPoints[3].position.x + spawnPoints[2].position.x) / 2, spawnPoints[3].position.y, 0), Quaternion.identity);
+        GameObject b;
+        switch (bossType)
+        {
+            case BossType.ElementalGolem:
+                b = bosses[0];
+                break;
+            case BossType.FlyingDemon:
+                b = bosses[1];
+                break;
+            case BossType.Necromancer:
+                b = bosses[2];
+                break;
+            case BossType.Computer:
+                b = bosses[3];
+                break;
+            case BossType.Angel:
+                b = bosses[4];
+                break;
+            default:
+                b = bosses[0];
+                break;
+        }
+        bossInstance = Instantiate(b, new Vector3((spawnPoints[3].position.x + spawnPoints[2].position.x) / 2, spawnPoints[3].position.y, 0), Quaternion.identity);
         enemiesInRoom.Add(bossInstance);
 
         if (bossType == BossType.ElementalGolem)

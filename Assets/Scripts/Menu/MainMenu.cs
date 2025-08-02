@@ -65,7 +65,7 @@ public class MainMenu : MonoBehaviour
         RectTransform targetRect = target.GetComponent<RectTransform>();
         RectTransform gunRect = gunIndicator.GetComponent<RectTransform>();
 
-        Vector3 offset = new Vector3(-146f, 0f, 0f); // Adjust offset as needed
+        Vector3 offset = new Vector3(-100f, 0f, 0f); // Adjust offset as needed
         gunRect.localPosition = targetRect.localPosition + offset;
         gunIndicator.SetActive(true);
     }

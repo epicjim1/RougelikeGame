@@ -27,6 +27,7 @@ public class RowSpinner : MonoBehaviour
     private float spinTimer = 0f;
     private bool decelerating = false;
 
+    private float loopHeight;
     public float upperLimit = 21f;
     public float lowerLimit = 7f;
     public Transform selectionArrow;
@@ -42,6 +43,7 @@ public class RowSpinner : MonoBehaviour
 
     private void Populate()
     {
+        loopHeight = items.Length * itemSpacing;
         int totalCopies = items.Length * visualLoops;
 
         for (int i = 0; i < totalCopies; i++)
@@ -68,7 +70,10 @@ public class RowSpinner : MonoBehaviour
         // Support both UI (Image) and 2D (SpriteRenderer)
         var img = obj.GetComponent<Image>();
         if (img != null)
+        {
             img.sprite = sprite;
+            img.SetNativeSize();
+        }
         else
         {
             obj.GetComponent<SpriteRenderer>().sprite = sprite;
@@ -90,11 +95,6 @@ public class RowSpinner : MonoBehaviour
 
     private void Update()
     {
-        /*if (Input.GetKeyDown(KeyCode.E))
-        {
-            StartSpin(spinSpeed);
-        }*/
-
         if (spinning)
         {
             transform.localPosition -= Vector3.up * spinSpeed * Time.deltaTime;
@@ -103,6 +103,10 @@ public class RowSpinner : MonoBehaviour
             {
                 transform.localPosition = new Vector3(transform.localPosition.x, upperLimit, transform.localPosition.z);
             }
+            /*if (transform.localPosition.y < 0)
+            {
+                transform.localPosition += Vector3.up * loopHeight;
+            }*/
 
             if (!decelerating)
             {

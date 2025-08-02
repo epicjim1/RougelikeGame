@@ -15,6 +15,7 @@ public class SpinController : MonoBehaviour
 
     public RowSpinner rowLevel;
     public RowSpinner rowStartingWeapon;
+    public RowSpinner rowBossType;
     public RowSpinner rowModifier;
 
     public float minSpeed = 15f;
@@ -32,16 +33,11 @@ public class SpinController : MonoBehaviour
         
     private void Update()
     {
-        //temp
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            StartSpin();
-        }
-
         if (hasSpun && !hasCollectedVals)
         {
             if (rowLevel.GetSelectedValue() != "" &&
                 rowStartingWeapon.GetSelectedValue() != "" &&
+                rowBossType.GetSelectedValue() != "" &&
                 rowModifier.GetSelectedValue() != "")
             {
                 hasCollectedVals = true;
@@ -58,9 +54,10 @@ public class SpinController : MonoBehaviour
             spinBtn.interactable = false;
 
             // Start each row with different speeds and deceleration for variety
-            rowLevel.StartSpin(Random.Range(minSpeed, maxSpeed), 10f, 1f);
-            rowStartingWeapon.StartSpin(Random.Range(minSpeed, maxSpeed), 10f, 2f);
-            rowModifier.StartSpin(Random.Range(minSpeed, maxSpeed), 10f, 3f);
+            rowLevel.StartSpin(Random.Range(minSpeed, maxSpeed), 1000f, 1f);
+            rowStartingWeapon.StartSpin(Random.Range(minSpeed, maxSpeed), 1000f, 2f);
+            rowBossType.StartSpin(Random.Range(minSpeed, maxSpeed), 1000f, 2.5f);
+            rowModifier.StartSpin(Random.Range(minSpeed, maxSpeed), 1000f, 3f);
 
             // Start loading dots animation
             loadingDotsCoroutine = StartCoroutine(LoadingDots());
@@ -71,10 +68,11 @@ public class SpinController : MonoBehaviour
     {
         string levelValue = rowLevel.GetSelectedValue();
         string startingWeaponValue = rowStartingWeapon.GetSelectedValue();
+        string bossType = rowBossType.GetSelectedValue();
         string modifierValue = rowModifier.GetSelectedValue();
 
         // Parse them if needed
-        GameManager.Instance.SetSpinResults(levelValue, startingWeaponValue, modifierValue);
+        GameManager.Instance.SetSpinResults(levelValue, startingWeaponValue, bossType, modifierValue);
 
         // Stop dots and update button
         if (loadingDotsCoroutine != null)

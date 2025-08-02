@@ -22,7 +22,6 @@ public class Healthbar : MonoBehaviour
     private Slider easeHealthSlider;
     private float lerpSpeed = 0.05f;
 
-    // start is called before the first frame update
     void Start()
     {
         Starting();
@@ -48,7 +47,6 @@ public class Healthbar : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (healthslider.value != health)

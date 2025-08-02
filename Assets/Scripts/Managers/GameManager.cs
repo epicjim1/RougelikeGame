@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using System;
 
 public class GameManager : MonoBehaviour
 {
@@ -9,6 +10,7 @@ public class GameManager : MonoBehaviour
     [Header("Game Starting State")]
     public string level;
     public string startingWeapon;
+    public BossType bossType;
     public string modifier;
     public float maxHealth = 50f;
     public int stage = 0;
@@ -91,10 +93,13 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void SetSpinResults(string level, string startingWeapon, string modifier)
+    public void SetSpinResults(string level, string startingWeapon, string bt, string modifier)
     {
         this.level = level;
         this.startingWeapon = startingWeapon;
+        this.bossType = Enum.TryParse<BossType>(bt, true, out var parsedBossType)
+            ? parsedBossType
+            : BossType.ElementalGolem;
         this.modifier = modifier;
 
         // Set the current level configuration
@@ -112,7 +117,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        Debug.Log($"Spin Results -> Level: {level}, StartingWeapon: {startingWeapon}, Modifier: {modifier}");
+        Debug.Log($"Spin Results -> Level: {level}, StartingWeapon: {startingWeapon}, Boss: {this.bossType}, Modifier: {modifier}");
     }
 
     public LevelConfiguration GetCurrentLevelConfig()

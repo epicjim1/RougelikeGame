@@ -5097,8 +5097,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bossName: Elemental Golem
   health: 500
-  meleeRange: 2
-  laserRange: 8
+  meleeRange: 2.5
+  meleeRadius: 3
   aimSpeed: 20
   corners: []
   projectilePrefab: {fileID: 4463241154524670353, guid: d0db855b453e00f42ba3c820219eafd2, type: 3}
