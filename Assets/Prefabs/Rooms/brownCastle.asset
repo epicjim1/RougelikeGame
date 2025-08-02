@@ -1,0 +1,92 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 621576632ba99494e841be93df8f0a40, type: 3}
+  m_Name: brownCastle
+  m_EditorClassIdentifier: 
+  levelName: brownCastle
+  levelDescription: poonany
+  playerSpawnTemplate:
+    roomPrefab: {fileID: 4460516088700042975, guid: 40c7ad5cef314b74ab08f9e6fd12f99b, type: 3}
+    size: {x: 8, y: 7}
+    maxNumberGenerated: 1
+    roomIsSpiked: 0
+  bossRoomTemplate:
+    roomPrefab: {fileID: 2084493459653918239, guid: 20e47a7faf35a0b41ae061a43f0397e4, type: 3}
+    size: {x: 19, y: 19}
+    maxNumberGenerated: 1
+    roomIsSpiked: 1
+  keyRoomTemplate:
+    roomPrefab: {fileID: 2084493459653918239, guid: b9b1b15fc62257f499ac28cb0bd1f67e, type: 3}
+    size: {x: 11, y: 17}
+    maxNumberGenerated: 1
+    roomIsSpiked: 1
+  roomTemplates:
+  - roomPrefab: {fileID: 2178576938523032735, guid: f90c06b59743b2d4aa8276152a2dd73a, type: 3}
+    size: {x: 35, y: 12}
+    maxNumberGenerated: 100
+    roomIsSpiked: 0
+  - roomPrefab: {fileID: 8934614599702981998, guid: ce5a507f4ac69454abb4d95eb4142c69, type: 3}
+    size: {x: 11, y: 10}
+    maxNumberGenerated: 100
+    roomIsSpiked: 0
+  - roomPrefab: {fileID: 2084493459653918239, guid: 76e6b0c1b21fd3142b60a56b2945617c, type: 3}
+    size: {x: 13, y: 14}
+    maxNumberGenerated: 100
+    roomIsSpiked: 0
+  collisionTile: {fileID: 11400000, guid: b03cc37245d40da41aae9ba636abbd84, type: 2}
+  floorTile: {fileID: 11400000, guid: 77539c41703ba8a4782bf79f7d83c8e2, type: 2}
+  wallTile: {fileID: 11400000, guid: 82337c020af3a964d8cfe901fae6d401, type: 2}
+  leftWallTopTile: {fileID: 11400000, guid: a37f5ddf385afbb4bb926a9e09954e05, type: 2}
+  rightWallTopTile: {fileID: 11400000, guid: a37f5ddf385afbb4bb926a9e09954e05, type: 2}
+  topWallTopTile: {fileID: 11400000, guid: efb7c72d7772e8640be63881af65d663, type: 2}
+  bottomWallTopTile: {fileID: 11400000, guid: efb7c72d7772e8640be63881af65d663, type: 2}
+  bottomLeftWallTile: {fileID: 11400000, guid: cdd54129cf4ec2d47be26ab5dbc4d765, type: 2}
+  topLeftWallTile: {fileID: 11400000, guid: a37f5ddf385afbb4bb926a9e09954e05, type: 2}
+  topLeftCornerTopTile: {fileID: 11400000, guid: af47442d9f4edca48bdd10442cf3e9bb, type: 2}
+  bottomRightWallTile: {fileID: 11400000, guid: f415235f301146947a720375536b1012, type: 2}
+  bottomRightWallTopTile: {fileID: 11400000, guid: 13ac685207e7a134d9d29d2336be0909, type: 2}
+  topRightWallTopTile: {fileID: 11400000, guid: daabbecfb0c03054b8974190d2edbccb, type: 2}
+  topRightWallTopSideTile: {fileID: 11400000, guid: a37f5ddf385afbb4bb926a9e09954e05, type: 2}
+  enemySpawnSet:
+  - enemyPrefabs:
+    - {fileID: 3141798927322897862, guid: 68d1284b8ec41584d96097ff51028436, type: 3}
+    - {fileID: 638481146736398696, guid: 32bc94bc76817ba489b631d6c7cde927, type: 3}
+    - {fileID: 1322318976373140629, guid: 8cce7143727f35946949f12cf409e535, type: 3}
+    enemySpawnWeights:
+    - 0.75
+    - 1
+    - 0.2
+  - enemyPrefabs:
+    - {fileID: 638481146736398696, guid: 32bc94bc76817ba489b631d6c7cde927, type: 3}
+    enemySpawnWeights:
+    - 1
+  - enemyPrefabs:
+    - {fileID: 1322318976373140629, guid: 8cce7143727f35946949f12cf409e535, type: 3}
+    enemySpawnWeights:
+    - 1
+  minEnemiesPerRoom: 1
+  maxEnemiesPerRoom: 3
+  corridorEnemyChance: 0
+  chest: {fileID: 3853958264598174242, guid: 6f32b7ab3a223a8428212d5b29cd6f24, type: 3}
+  chestSpawnWeights:
+  - 0.6
+  - 0
+  - 0.25
+  - 0.15
+  chestSpawnChancePerRoom: 1
+  roomCount: 30
+  gridSize: {x: 220, y: 220}
+  roomPadding: 5
+  margin: 5
+  ambientLightColor: {r: 0.13725491, g: 0.13725491, b: 0.13725491, a: 1}
+  audioSource: {fileID: 8434609423341301580, guid: 65f9e670b74766d4cb0ef55b15e0486a, type: 3}
+  ambientMusic: {fileID: 8300000, guid: 8eb901f9620c3ca4988e5f581438f438, type: 3}

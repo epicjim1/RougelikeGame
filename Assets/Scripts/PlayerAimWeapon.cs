@@ -5,12 +5,10 @@ using UnityEngine.Diagnostics;
 public class PlayerAimWeapon : MonoBehaviour
 {
     public Transform aimTransform;
-    private Animator aimAnim;
     //private LineRenderer aimLine;
 
     private void Awake()
     {
-        aimAnim = aimTransform.GetComponentInChildren<Animator>();
         //aimLine = aimTransform.GetComponent<LineRenderer>();
         //aimLine.positionCount = 2;
         //aimLine.startWidth = 0.05f;
@@ -19,7 +17,10 @@ public class PlayerAimWeapon : MonoBehaviour
 
     void Update()
     {
-        Aiming();
+        if (!GameManager.Instance.GameIsPaused && !GameManager.Instance.GameIsLost)
+        {
+            Aiming();
+        }
         //Shooting();
     }
 
@@ -46,7 +47,6 @@ public class PlayerAimWeapon : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            aimAnim.SetTrigger("Shoot");
             TempCamShake.Instance.Shake(0.1f, 0.1f);
         }
     }

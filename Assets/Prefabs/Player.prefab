@@ -9,7 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2964066633234025226}
-  m_Layer: 0
+  - component: {fileID: 3628257623569570419}
+  m_Layer: 10
   m_Name: weaponDropPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31,6 +32,52 @@ Transform:
   m_Children: []
   m_Father: {fileID: 6305177190200106970}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!61 &3628257623569570419
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 90259771301429341}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0.0038166046, y: 0.099999994}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1, y: 1.5}
+    newSize: {x: 1, y: 1.5}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.6223564, y: 0.20266485}
+  m_EdgeRadius: 0
 --- !u!1 &2123287879921359791
 GameObject:
   m_ObjectHideFlags: 0
@@ -42,12 +89,12 @@ GameObject:
   - component: {fileID: 6305177190200106970}
   - component: {fileID: 3273050704629192679}
   - component: {fileID: 1296530870967997727}
-  - component: {fileID: 8715252336606697413}
+  - component: {fileID: 807453999601735730}
   - component: {fileID: 4851548609497793625}
   - component: {fileID: 1867574565170639403}
   - component: {fileID: 8535670784432640769}
   - component: {fileID: 1100107019700595688}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -95,7 +142,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  - {fileID: 2100000, guid: 3597d3824daac6541aba2b6905a5c842, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -154,7 +201,7 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
---- !u!61 &8715252336606697413
+--- !u!61 &807453999601735730
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -188,7 +235,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.033210874, y: -0.6514895}
+  m_Offset: {x: 0.0020487309, y: -0.25437117}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -198,7 +245,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.68114495, y: 0.20266485}
+  m_Size: {x: 0.6255832, y: 0.9969015}
   m_EdgeRadius: 0
 --- !u!95 &4851548609497793625
 Animator:
@@ -238,9 +285,7 @@ MonoBehaviour:
   dashSpeed: 12
   dashDuration: 0.2
   dashCooldown: 1
-  rb: {fileID: 1296530870967997727}
-  anim: {fileID: 4851548609497793625}
-  spriteRenderer: {fileID: 3273050704629192679}
+  healthbar: {fileID: 0}
 --- !u!114 &8535670784432640769
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -270,6 +315,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6706c7f90f77c5b4bb19d1e2abea4cc5, type: 2}
   - {fileID: 11400000, guid: 9d0070679d308d04ab8a0ce3a7bec4af, type: 2}
   - {fileID: 11400000, guid: b30d6a69a8010d64f9da2cebaa0ca5c4, type: 2}
+  - {fileID: 11400000, guid: c20023cba0e427d4095e3da6ac78a365, type: 2}
   unlockedWeapons: []
   weaponHolder: {fileID: 3299894004091078685}
   weaponPickupPrefab: {fileID: 1424903553194257381, guid: 85c40cf34cbd6634ab935c5fd9552bc4, type: 3}

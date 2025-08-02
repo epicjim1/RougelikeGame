@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 554c459bd3f4a2a49931ba35d42a031f, type: 3}
+  m_Name: PumpkinDude
+  m_EditorClassIdentifier: 
+  enemyName: PumpkinDude
+  maxHealth: 50
+  moveSpeed: 3
+  chaseRange: 20
+  attackRange: 10
+  attackCooldown: 1
+  damage: 10
+  isRanged: 1
+  knockbackStrength: 20
+  projectilePrefab: {fileID: 4463241154524670353, guid: eceb906c94e6c2241b6b6be93a09b30e, type: 3}

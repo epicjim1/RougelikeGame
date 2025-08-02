@@ -5,6 +5,10 @@ TagManager:
   serializedVersion: 3
   tags:
   - Walls
+  - Enemy
+  - floor
+  - Boss
+  - bossBar
   layers:
   - Default
   - TransparentFX
@@ -12,14 +16,14 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Player
+  - Enemy
+  - Walls
+  - Floor
+  - FeetCollider
+  - MinimapOnly
+  - Boss
+  - Spikes
   - 
   - 
   - 

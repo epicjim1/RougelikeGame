@@ -10,7 +10,6 @@ public class WeaponHandler : MonoBehaviour
 
     [Header("References")]
     public Transform weaponHolder;
-    //public Animator weaponAnimator;
     public GameObject weaponPickupPrefab;
     public Transform weaponDropPoint;
     public WeaponUI weaponUI;
@@ -19,11 +18,38 @@ public class WeaponHandler : MonoBehaviour
 
     private void Start()
     {
-        //Move to game manger for only lvl 1
-        if (allWeapons.Count > 0)
+        // Get starting weapon from GameManager
+        if (GameManager.Instance != null && !string.IsNullOrEmpty(GameManager.Instance.startingWeapon))
         {
-            UnlockWeapon(allWeapons[0]);
-            EquipWeapon(0);
+            WeaponData startingWeapon = FindWeaponByName(GameManager.Instance.startingWeapon);
+            if (startingWeapon != null)
+            {
+                UnlockWeapon(startingWeapon);
+                EquipWeapon(0);
+            }
+            else
+            {
+                Debug.LogWarning($"Starting weapon '{GameManager.Instance.startingWeapon}' not found in allWeapons list!");
+                // Fallback to first weapon if starting weapon not found
+                if (allWeapons.Count > 0)
+                {
+                    UnlockWeapon(allWeapons[0]);
+                    EquipWeapon(0);
+                }
+            }
+        }
+        else
+        {
+            if (unlockedWeapons.Count == 1)
+            {
+                UnlockWeapon(unlockedWeapons[0]);
+                EquipWeapon(0);
+            }
+            else
+            {
+                UnlockWeapon(allWeapons[0]);
+                EquipWeapon(0);
+            }
         }
     }
 
@@ -31,22 +57,38 @@ public class WeaponHandler : MonoBehaviour
     {
         HandleShooting();
         HandleWeaponSwap();
+
+        if (!currentWeapon.isReloading && currentWeapon.currentAmmo == currentWeapon.weaponData.maxAmmo)
+        {
+            weaponUI.currAmmoText.text = currentWeapon.currentAmmo.ToString();
+        }
+    }
+
+    private WeaponData FindWeaponByName(string weaponName)
+    {
+        foreach (WeaponData weapon in allWeapons)
+        {
+            if (weapon != null && weapon.name.Equals(weaponName, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return weapon;
+            }
+        }
+        return null;
     }
 
     void HandleShooting()
     {
-        if (Input.GetMouseButton(0))
+        if (!GameManager.Instance.GameIsPaused && !GameManager.Instance.GameIsLost && Input.GetMouseButton(0))
         {
             Vector3 dir = (GetMouseWorldPosition() - weaponHolder.position).normalized;
             currentWeapon?.Shoot(dir);
-            //weaponAnimator.SetTrigger("Shoot");
-            //currentWeapon?.GetComponent<Animator>().SetTrigger("Shoot");
+            weaponUI.currAmmoText.text = currentWeapon.currentAmmo.ToString();
         }
     }
 
     void HandleWeaponSwap()
     {
-        if (Input.GetKeyDown(KeyCode.Q) && unlockedWeapons.Count > 1)
+        if (!GameManager.Instance.GameIsPaused && !GameManager.Instance.GameIsLost && Input.GetKeyDown(KeyCode.Q) && unlockedWeapons.Count > 1)
         {
             currentWeaponIndex = (currentWeaponIndex + 1) % unlockedWeapons.Count;
             EquipWeapon(currentWeaponIndex);
@@ -61,14 +103,13 @@ public class WeaponHandler : MonoBehaviour
         currentWeaponIndex = index;
         WeaponData weaponData = unlockedWeapons[index];
         currentWeapon = Instantiate(weaponData.weaponPrefab, weaponHolder).GetComponent<Weapon>();
-        currentWeapon.SetData(weaponData); // pass data in
-
-        // Apply animations
-        //if (weaponData.weaponAnimOverride != null)
-        //    weaponAnimator.runtimeAnimatorController = weaponData.weaponAnimOverride;
+        currentWeapon.SetData(weaponData);
 
         if (weaponUI != null)
-            weaponUI.SetWeaponSprite(weaponData.weaponSprite);
+            weaponUI.SetWeaponSprite(weaponData.weaponSprite, !weaponData.isRanged);
+
+        weaponUI.maxAmmoText.text = currentWeapon.weaponData.maxAmmo.ToString();
+        weaponUI.currAmmoText.text = currentWeapon.currentAmmo.ToString();
     }
 
     public void UnlockWeapon(WeaponData newWeapon)

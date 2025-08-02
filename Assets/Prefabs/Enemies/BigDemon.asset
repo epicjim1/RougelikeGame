@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 554c459bd3f4a2a49931ba35d42a031f, type: 3}
+  m_Name: BigDemon
+  m_EditorClassIdentifier: 
+  enemyName: Big Demon
+  maxHealth: 100
+  moveSpeed: 3
+  chaseRange: 10
+  attackRange: 0.4
+  attackCooldown: 1
+  damage: 30
+  isRanged: 0
+  knockbackStrength: 20
+  projectilePrefab: {fileID: 0}

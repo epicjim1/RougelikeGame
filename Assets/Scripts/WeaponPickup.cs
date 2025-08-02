@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 public class WeaponPickup : MonoBehaviour
@@ -6,7 +7,9 @@ public class WeaponPickup : MonoBehaviour
 
     private bool playerInRange = false;
     private GameObject player;
+    private SpriteRenderer sr;
 
+    public GameObject promptObject;
     public GameObject promptPrefab; // assign in Inspector
     private GameObject promptInstance;
 
@@ -16,10 +19,20 @@ public class WeaponPickup : MonoBehaviour
 
     private void Start()
     {
-        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        startPos = transform.position;
+        promptObject.SetActive(false);
+        sr = GetComponent<SpriteRenderer>();
         if (weaponToUnlock != null && weaponToUnlock.weaponSprite != null)
         {
             sr.sprite = weaponToUnlock.weaponSprite;
+
+            //float spriteTop = sr.bounds.extents.y;
+            //promptObject.transform.localPosition = new Vector3(0, spriteTop, 0);
+            promptObject.GetComponentInChildren<TMP_Text>().text = weaponToUnlock.name;
+
+            float pivotOffset = sr.bounds.center.y - transform.position.y;
+            float localTopY = pivotOffset + sr.bounds.extents.y;
+            promptObject.transform.localPosition = new Vector3(0, localTopY + .2f, 0);
         }
     }
 
@@ -33,6 +46,8 @@ public class WeaponPickup : MonoBehaviour
 
         //float newY = Mathf.Sin(Time.time * bobSpeed) * bobHeight;
         //transform.position = startPos + new Vector3(startPos.x, startPos.y + newY, startPos.z);
+        float newY = Mathf.Sin(Time.time * bobSpeed) * bobHeight;
+        transform.position = startPos + new Vector3(0f, newY, 0f);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -42,11 +57,13 @@ public class WeaponPickup : MonoBehaviour
             playerInRange = true;
             player = other.gameObject;
 
-            if (promptPrefab != null && promptInstance == null)
+            sr.material.SetFloat("_OutlineThickness", 1);
+            promptObject.SetActive(true);
+            /*if (promptPrefab != null && promptInstance == null)
             {
                 promptInstance = Instantiate(promptPrefab, transform.position + Vector3.up * 1.5f, Quaternion.identity);
                 promptInstance.transform.SetParent(transform); // optional: follow bobbing
-            }
+            }*/
         }
     }
 
@@ -57,8 +74,10 @@ public class WeaponPickup : MonoBehaviour
             playerInRange = false;
             player = null;
 
-            if (promptInstance != null)
-                Destroy(promptInstance);
+            sr.material.SetFloat("_OutlineThickness", 0);
+            promptObject.SetActive(false);
+            /*if (promptInstance != null)
+                Destroy(promptInstance);*/
         }
     }
 }
