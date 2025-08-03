@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6432d3927b2e8a14b99b891b243ffa1b, type: 3}
+  m_Name: Modifier6
+  m_EditorClassIdentifier: 
+  itemID: modifier6
+  itemType: 2
+  sprite: {fileID: 21300000, guid: 5dcac661dee1bd3469166c85d7a34e7a, type: 3}
+  value: 6
+  rotateDisplay: 0
+  cost: 0
+  isUnlockedByDefault: 1

@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6432d3927b2e8a14b99b891b243ffa1b, type: 3}
+  m_Name: BossElementalGolem
+  m_EditorClassIdentifier: 
+  itemID: ElementalGolem
+  itemType: 3
+  sprite: {fileID: -244485079, guid: e65b390b4f9f2cd4eb3e3a150823d3b6, type: 3}
+  value: ElementalGolem
+  rotateDisplay: 0
+  cost: 0
+  isUnlockedByDefault: 1

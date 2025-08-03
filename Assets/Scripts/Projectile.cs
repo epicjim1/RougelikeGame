@@ -19,6 +19,7 @@ public class Projectile : MonoBehaviour
     private int damage;
     private Rigidbody2D rb;
     private bool playersBullet = false;
+    private BossType bossType;
 
     public void SetDirection(Vector3 dir)
     {
@@ -42,6 +43,7 @@ public class Projectile : MonoBehaviour
 
     private void Start()
     {
+        bossType = GameManager.Instance.bossType;
         //rb.linearVelocity = direction * speed;
         if (isSpeedRandom)
         {
@@ -63,7 +65,22 @@ public class Projectile : MonoBehaviour
         }
         else if (playersBullet && collision.tag == "Boss")
         {
-            collision.GetComponent<GolemBoss>().TakeDamage(damage);
+            switch (bossType)
+            {
+                case BossType.ElementalGolem:
+                    collision.GetComponent<GolemBoss>().TakeDamage(damage);
+                    break;
+                case BossType.FlyingDemon:
+                    break;
+                case BossType.Necromancer:
+                    break;
+                case BossType.Computer:
+                    break;
+                case BossType.Angel:
+                    break;
+                default:
+                    break;
+            }
             Hit();
         }
         else if (!playersBullet && collision.tag == "Enemy")

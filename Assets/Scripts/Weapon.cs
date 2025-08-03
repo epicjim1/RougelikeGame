@@ -18,6 +18,7 @@ public class Weapon : MonoBehaviour
     [HideInInspector] public int currentAmmo;
     [HideInInspector] public bool isReloading = false;
     private Quaternion originalRotation;
+    private BossType bossType;
 
     private void Start()
     {
@@ -139,12 +140,35 @@ public class Weapon : MonoBehaviour
 
         foreach (Collider2D enemy in hitEnemies)
         {
-            EnemyController controller = enemy.GetComponent<EnemyController>();
-            controller.TakeDamage(weaponData.damage);
-            Vector2 knockbackDir = (enemy.transform.position - firePoint.position).normalized;
-            float knockbackForce = weaponData.knockbackStrength;
-            controller.ApplyKnockback(knockbackDir, knockbackForce);
-            Debug.Log($"Hit {enemy.name} with melee");
+            if (enemy.CompareTag("Enemy"))
+            {
+                EnemyController controller = enemy.GetComponent<EnemyController>();
+                controller.TakeDamage(weaponData.damage);
+                Vector2 knockbackDir = (enemy.transform.position - firePoint.position).normalized;
+                float knockbackForce = weaponData.knockbackStrength;
+                controller.ApplyKnockback(knockbackDir, knockbackForce);
+                Debug.Log($"Hit {enemy.name} with melee");
+            }
+            else if (enemy.CompareTag("Boss"))
+            {
+                bossType = GameManager.Instance.bossType;
+                switch (bossType)
+                {
+                    case BossType.ElementalGolem:
+                        enemy.GetComponent<GolemBoss>().TakeDamage(weaponData.damage);
+                        break;
+                    case BossType.FlyingDemon:
+                        break;
+                    case BossType.Necromancer:
+                        break;
+                    case BossType.Computer:
+                        break;
+                    case BossType.Angel:
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
     }
 

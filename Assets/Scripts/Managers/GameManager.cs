@@ -21,7 +21,7 @@ public class GameManager : MonoBehaviour
     private LevelConfiguration currentLevelConfig;
 
     [Header("Player Coins")]
-    public int totalPlayerCoins;
+    private int totalPlayerCoins;
     public int currentRunPlayerCoins;
     private const string TOTAL_COINS_PREF_KEY = "TotalPlayerCoins";
 
@@ -51,6 +51,19 @@ public class GameManager : MonoBehaviour
         maxHealth = currentMaxHealth;
         currentLevelConfig.gridSize = new Vector2Int(currentLevelConfig.gridSize.x + 50, currentLevelConfig.gridSize.y + 50);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public int GetTotalCoins()
+    {
+        totalPlayerCoins = PlayerPrefs.GetInt(TOTAL_COINS_PREF_KEY, 0);
+        return totalPlayerCoins;
+    }
+
+    public void UsedTotalCoins(int val)
+    {
+        totalPlayerCoins -= val;
+        PlayerPrefs.SetInt(TOTAL_COINS_PREF_KEY, totalPlayerCoins);
+        PlayerPrefs.Save();
     }
 
     private void LoadTotalPlayerCoins()

@@ -5,6 +5,7 @@ using UnityEngine.EventSystems;
 public class MainMenu : MonoBehaviour
 {
     public GameObject mainMenuUI;
+    public GameObject shopMenuUI;
     public GameObject settingsMenuUI;
     public GameObject[] slotScreens;
 
@@ -17,9 +18,11 @@ public class MainMenu : MonoBehaviour
         {
             screen.SetActive(false);
         }
+
+        shopMenuUI.SetActive(false);
         settingsMenuUI.SetActive(false);
-        gunIndicator.SetActive(false); // hide at start
-        // Add hover events to each button
+        gunIndicator.SetActive(false);
+        
         foreach (Button btn in menuButtons)
         {
             AddHoverEvents(btn);
@@ -79,6 +82,12 @@ public class MainMenu : MonoBehaviour
         }
     }
 
+    public void ShopMenu()
+    {
+        mainMenuUI.SetActive(false);
+        shopMenuUI.SetActive(true);
+    }
+
     public void SettingsMenu()
     {
         mainMenuUI.SetActive(false);
@@ -91,6 +100,7 @@ public class MainMenu : MonoBehaviour
         {
             screen.SetActive(false);
         }
+        shopMenuUI.SetActive(false);
         settingsMenuUI.SetActive(false);
         mainMenuUI.SetActive(true);
     }

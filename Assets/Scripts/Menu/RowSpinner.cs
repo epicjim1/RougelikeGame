@@ -10,9 +10,11 @@ public class RowSpinner : MonoBehaviour
     public class SpinItem
     {
         public Sprite sprite;
-        public string value;  // use string so you can store anything (int, bool, etc as string)
+        public string value;
         public bool rotateDisplay;
     }
+
+    public SlotItemType spinnerType;
 
     public SpinItem[] items;               // list of possible items
     public GameObject itemPrefab;          // prefab containing Image component
@@ -38,7 +40,8 @@ public class RowSpinner : MonoBehaviour
 
     private void Start()
     {
-        Populate();
+        //Populate();
+        RepopulateFromInventory();
     }
 
     private void Populate()
@@ -166,7 +169,6 @@ public class RowSpinner : MonoBehaviour
         }
 
         selectedValue = closestItem.name;
-        //Debug.Log("Selected Item: " + selectedValue);
 
         float yOffset = arrowY - closestItem.transform.position.y;
         targetPosition = transform.localPosition + new Vector3(0, yOffset, 0);
@@ -176,5 +178,73 @@ public class RowSpinner : MonoBehaviour
     public string GetSelectedValue()
     {
         return selectedValue;
+    }
+
+
+    private void OnEnable()
+    {
+        // Subscribe to the event when this object is enabled
+        InventoryManager.OnInventoryChanged += RepopulateFromInventory;
+        RepopulateFromInventory();
+    }
+
+    private void OnDisable()
+    {
+        // Unsubscribe to prevent errors when this object is disabled/destroyed
+        InventoryManager.OnInventoryChanged -= RepopulateFromInventory;
+    }
+
+    /// <summary>
+    /// Clears existing items and rebuilds the spinner using the InventoryManager's list.
+    /// </summary>
+    public void RepopulateFromInventory()
+    {
+        // 1. Clear any old items
+        foreach (GameObject item in spawnedItems)
+        {
+            Destroy(item);
+        }
+        spawnedItems.Clear();
+
+        // 2. Get the current list of unlocked items for THIS SPINNER'S TYPE
+        List<SlotItem> itemsToDisplay = InventoryManager.Instance.GetUnlockedItemsByType(spinnerType); // <--- CHANGED: Get specific type
+
+        if (itemsToDisplay == null || itemsToDisplay.Count == 0)
+        {
+            Debug.LogWarning($"No items are unlocked for type '{spinnerType}' to display in the spinner.", this);
+            // Optionally, display a placeholder if no items are unlocked for this type
+            return;
+        }
+
+        // 3. Populate with new items
+        loopHeight = itemsToDisplay.Count * itemSpacing;
+        int totalCopies = itemsToDisplay.Count * visualLoops;
+
+        for (int i = 0; i < totalCopies; i++)
+        {
+            int itemIndex = i % itemsToDisplay.Count;
+            SlotItem currentItem = itemsToDisplay[itemIndex];
+
+            GameObject obj = Instantiate(itemPrefab, transform);
+            obj.transform.localPosition = Vector3.down * i * itemSpacing;
+
+            SetVisual(obj, currentItem.sprite);
+            obj.name = currentItem.value; // Use the value from the ScriptableObject
+            if (currentItem.rotateDisplay)
+                obj.transform.rotation = Quaternion.Euler(0, 0, 270);
+
+            spawnedItems.Add(obj);
+        }
+
+        // Center the entire strip of items vertically
+        float totalHeight = totalCopies * itemSpacing;
+        transform.localPosition = new Vector3(transform.localPosition.x, totalHeight / 2f, transform.localPosition.z);
+
+        Debug.Log($"RowSpinner (Type: {spinnerType}) repopulated with {itemsToDisplay.Count} unique items.");
+        if (itemsToDisplay.Count < 3)
+            lowerLimit = 400;
+        else
+            lowerLimit = itemsToDisplay.Count * 100;
+        upperLimit = itemsToDisplay.Count * visualLoops * 100;
     }
 }
